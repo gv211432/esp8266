@@ -1,0 +1,178 @@
+=======================================================================================
+=======================================================================================
+
+Serial.begin(9600);
+
+  if (!LittleFS.begin())
+  {
+    Serial.println("LittleFS Mount Failed");
+    return;
+  }
+
+  Dir dir = LittleFS.openDir("/");
+  // or Dir dir = LittleFS.openDir("/data");
+  while (dir.next())
+  {
+    Serial.println();
+    Serial.print(dir.fileName());
+    if (dir.fileSize())
+    {
+      File f = dir.openFile("r");
+      Serial.println(f.size());
+      String bu;
+      while (f.available())
+      {
+        char alp = f.read();
+        bu.concat(alp);
+      }
+
+      Serial.print(bu);
+
+      f.close();
+    }
+  }
+  const char *myName = "gaurav";
+  Serial.printf("Hi mr %s\n", myName);
+
+  File wDevice = LittleFS.open("device", "w");
+  if (wDevice.println("My name is Gaurav Dude!!"))
+  {
+    Serial.println("file is written...");
+  }
+  wDevice.close();
+
+  File device = LittleFS.open("device", "r");
+
+  String bu;
+  while (device.available())
+  {
+    char alp = device.read();
+    bu.concat(alp);
+  }
+
+  Serial.print(bu);
+
+  device.close();
+
+
+=======================================================================================
+=======================================================================================
+
+
+String readFile(char location)
+{
+  if (!LittleFS.begin())
+    return;
+
+  File data = LittleFS.open(&location, "r");
+
+  String bu;
+  while (data.available())
+  {
+    char alp = data.read();
+    bu.concat(alp);
+  }
+  data.close();
+  return bu;
+};
+
+
+
+
+
+=======================================================================================
+=======================================================================================
+
+
+
+server.on(
+    "/post",
+    HTTP_POST,
+    [](AsyncWebServerRequest * request){},
+    NULL,
+    [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
+ 
+      for (size_t i = 0; i < len; i++) {
+        Serial.write(data[i]);
+      }
+ 
+      Serial.println();
+ 
+      request->send(200);
+  });
+ 
+
+
+=======================================================================================
+=======================================================================================
+
+
+void handleBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+{
+    if (!index)
+    {
+        Serial.printf("BodyStart: %u B\n", total);
+    }
+    for (size_t i = 0; i < len; i++)
+    {
+        Serial.write(data[i]);
+    }
+    if (index + len == total)
+    {
+        Serial.printf("BodyEnd: %u B\n", total);
+    }
+}
+
+
+
+=======================================================================================
+=======================================================================================
+
+
+String readStatus()
+{
+
+    if (!LittleFS.begin())
+        return String("Not able to read..");
+
+    File data = LittleFS.open("/index.html", "r");
+
+    String bu;
+    while (data.available())
+    {
+        char alp = data.read();
+        bu.concat(alp);
+    }
+    data.close();
+    return bu;
+}
+
+
+
+=======================================================================================
+=======================================================================================
+
+ //List all collected headers
+        int headers = request->headers();
+        int i;
+        for (i = 0; i < headers; i++)
+        {
+            AsyncWebHeader *h = request->getHeader(i);
+            Serial.printf("HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
+        }
+
+        //get specific header by name
+        if (request->hasHeader("MyHeader"))
+        {
+            AsyncWebHeader *h = request->getHeader("MyHeader");
+            Serial.printf("MyHeader: %s\n", h->value().c_str());
+        }
+
+=======================================================================================
+=======================================================================================
+
+
+
+
+=======================================================================================
+=======================================================================================
