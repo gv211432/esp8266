@@ -1,0 +1,319 @@
+
+┏━╸╻ ╻╺┳╸┏━┓┏━┓   ┏━╸╻ ╻┏┓╻┏━╸╺┳╸╻┏━┓┏┓╻┏━┓
+┣╸ ┏╋┛ ┃ ┣┳┛┣━┫   ┣╸ ┃ ┃┃┗┫┃   ┃ ┃┃ ┃┃┗┫┗━┓
+┗━╸╹ ╹ ╹ ╹┗╸╹ ╹   ╹  ┗━┛╹ ╹┗━╸ ╹ ╹┗━┛╹ ╹┗━┛
+
+=======================================================================================
+=======================================================================================
+
+# Figure out by yourself
+# It lists the all directory and all its content in one shot...
+Serial.begin(9600);
+  if (!LittleFS.begin())
+  {
+    Serial.println("LittleFS Mount Failed");
+    return;
+  }
+
+  Dir dir = LittleFS.openDir("/");
+  // or Dir dir = LittleFS.openDir("/data");
+  while (dir.next())
+  {
+    Serial.println();
+    Serial.print(dir.fileName());
+    if (dir.fileSize())
+    {
+      File f = dir.openFile("r");
+      Serial.println(f.size());
+      String bu;
+      while (f.available())
+      {
+        char alp = f.read();
+        bu.concat(alp);
+      }
+
+      Serial.print(bu);
+
+      f.close();
+    }
+  }
+  const char *myName = "gaurav";
+  Serial.printf("Hi mr %s\n", myName);
+
+  File wDevice = LittleFS.open("device", "w");
+  if (wDevice.println("My name is Gaurav Dude!!"))
+  {
+    Serial.println("file is written...");
+  }
+  wDevice.close();
+
+  File device = LittleFS.open("device", "r");
+
+  String bu;
+  while (device.available())
+  {
+    char alp = device.read();
+    bu.concat(alp);
+  }
+
+  Serial.print(bu);
+
+  device.close();
+
+
+=======================================================================================
+=======================================================================================
+
+# Mount file system open file, read file and unmount filesystem
+String readFile(char location)
+{
+  if (!LittleFS.begin())
+    return;
+
+  File data = LittleFS.open(&location, "r");
+
+  String bu;
+  while (data.available())
+  {
+    char alp = data.read();
+    bu.concat(alp);
+  }
+  data.close();
+  return bu;
+};
+
+
+
+=======================================================================================
+=======================================================================================
+
+
+# Keep listining on path for post request for any post request.. 
+server.on(
+    "/post",
+    HTTP_POST,
+    [](AsyncWebServerRequest * request){},
+    NULL,
+    [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
+ 
+      for (size_t i = 0; i < len; i++) {
+        Serial.write(data[i]);
+      }
+ 
+      Serial.println();
+ 
+      request->send(200);
+  });
+ 
+
+=======================================================================================
+=======================================================================================
+
+# function for handling upload post request.
+void handleBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+{
+    if (!index)
+    {
+        Serial.printf("BodyStart: %u B\n", total);
+    }
+    for (size_t i = 0; i < len; i++)
+    {
+        Serial.write(data[i]);
+    }
+    if (index + len == total)
+    {
+        Serial.printf("BodyEnd: %u B\n", total);
+    }
+}
+
+=======================================================================================
+=======================================================================================
+
+# mount and read the content
+String readStatus()
+{
+
+    if (!LittleFS.begin())
+        return String("Not able to read..");
+
+    File data = LittleFS.open("/index.html", "r");
+
+    String bu;
+    while (data.available())
+    {
+        char alp = data.read();
+        bu.concat(alp);
+    }
+    data.close();
+    return bu;
+}
+
+
+
+=======================================================================================
+=======================================================================================
+
+
+#  List all collected headers
+int headers = request->headers();
+int i;
+for (i = 0; i < headers; i++)
+{
+    AsyncWebHeader *h = request->getHeader(i);
+    Serial.printf("HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
+}
+
+# get specific header by name
+if (request->hasHeader("MyHeader"))
+{
+    AsyncWebHeader *h = request->getHeader("MyHeader");
+    Serial.printf("MyHeader: %s\n", h->value().c_str());
+}
+
+
+        
+=======================================================================================
+=======================================================================================
+
+
+# ESP8266 Blink
+# Blink the blue LED on the ESP8266 module
+
+#define LED 2 //Define blinking LED pin
+
+void setup() {
+  pinMode(LED, OUTPUT); // Initialize the LED pin as an output
+}
+// the loop function runs over and over again forever
+void loop() {
+  digitalWrite(LED, LOW); // Turn the LED on (Note that LOW is the voltage level)
+  delay(1000); // Wait for a second
+  digitalWrite(LED, HIGH); // Turn the LED off by making the voltage HIGH
+  delay(1000); // Wait for two seconds
+}
+
+
+
+=======================================================================================
+=======================================================================================
+
+
+# Safe delay function for arduino
+
+int previouTime = 0;
+int eventTime = 2000;
+unsigned long currentTime = millis();
+if (currentTime - previouTime >= eventTime)
+{
+    Serial.println("Hi gaurav after 2 minutes");
+    previouTime = currentTime;
+}
+
+
+=======================================================================================
+=======================================================================================
+
+# convert the string into int array..
+int myLeds[4] = {};
+
+char testString[] = "21, 20, 19, 18";
+char delimiters[] = ",";
+
+void setup() {
+  Serial.begin(115200);
+
+ char temp[10];
+  char *ptr;
+  int index = 0;
+
+  ptr = strtok(testString, delimiters);
+
+  while (ptr != NULL) {
+    myLeds[index] = atoi(ptr);
+    Serial.print("myLeds[");
+    Serial.print(index);
+    Serial.print("] = ");
+    Serial.println(myLeds[index++]);
+    ptr = strtok(NULL, delimiters);
+  }
+}
+
+
+=======================================================================================
+=======================================================================================
+
+# My function for alarm, this was the very firsy one to be experimented
+void alarmPin2()
+{
+    if (a2hOn != -1 && a2mOn != -1)
+    {
+        if (hour() == a2hOn && minute() == a2mOn)
+        {
+            Serial.println("Task On committed..");
+            pinMode(LED, OUTPUT);
+            digitalWrite(LED, LOW);
+        }
+    }
+
+    if (a2hOff != -1 && a2mOff != -1)
+    {
+        if (hour() == a2hOff && minute() == a2mOff)
+        {
+            Serial.println("Task Off committed..");
+            digitalWrite(LED, HIGH);
+        }
+    }
+}
+
+
+=======================================================================================
+=======================================================================================
+
+
+Serial.println("\n===================================================");
+Serial.println("\n===================================================");
+
+for (int i = 0; i <= 9; i++)
+{
+    Serial.print(" Alarma - ");
+    Serial.print(i);
+    Serial.print("   ");
+    String myAlarmJSON = s + "{\"free\":" + 1 + ",\"enable\":" + alarms[i][1] + ",\"pin\":" + alarms[i][2] + ",\"onHr\":" + alarms[i][3] + ",\"onMin\":" + alarms[i][4] + ",\"offHr\":" + alarms[i][5] + ",\"offMin\":" + alarms[i][6] + ",\"sun\":" + alarms[i][7] + ",\"mon\":" + alarms[i][8] + ",\"tue\":" + alarms[i][9] + ",\"wed\":" + alarms[i][10] + ",\"thu\":" + alarms[i][11] + ",\"fri\":" + alarms[i][12] + ",\"sat\":" + alarms[i][13] + ",\"oneShot\":" + alarms[i][14] + ",\"day\":" + alarms[i][15] + ",\"month\":" + alarms[i][16] + ",\"year\":" + alarms[i][17] + "}";
+    Serial.println(myAlarmJSON);
+
+    for (int j = 0; j <= 17; j++)
+    {
+        Serial.print(alarms[i][j]);
+    }
+    Serial.println("\n");
+}
+
+
+=======================================================================================
+=======================================================================================
+
+
+
+{alarm0:{"free":0,"enable":0,"pin":50,"onHr":25,"onMin":61,"offHr":25,"offMin":61,"sun":0,"mon":0,"tue":0,"wed":0,"thu":0,"fri":0,"sat":0,"oneShot":2,"day":32,"month":13,"year":0},alarm1:{"free":1,"enable":1,"pin":2,"onHr":0,"onMin":1,"offHr":0,"offMin":2,"sun":1,"mon":1,"tue":1,"wed":0,"thu":0,"fri":0,"sat":0,"oneShot":2,"day":32,"month":13,"year":0},alarm2:{"free":1,"enable":1,"pin":2,"onHr":0,"onMin":3,"offHr":0,"offMin":4,"sun":1,"mon":1,"tue":1,"wed":1,"thu":0,"fri":0,"sat":0,"oneShot":2,"day":32,"month":13,"year":0},alarm3:{"free":0,"enable":0,"pin":50,"onHr":25,"onMin":61,"offHr":25,"offMin":61,"sun":0,"mon":0,"tue":0,"wed":0,"thu":0,"fri":0,"sat":0,"oneShot":2,"day":32,"month":13,"year":0},alarm4:{"free":0,"enable":0,"pin":50,"onHr":25,"onMin":61,"offHr":25,"offMin":61,"sun":0,"mon":0,"tue":0,"wed":0,"thu":0,"fri":0,"sat":0,"oneShot":2,"day":32,"month":13,"year":0},alarm5:{"free":1,"enable":1,"pin":50,"onHr":25,"onMin":61,"offHr":25,"offMin":61,"sun":0,"mon":0,"tue":0,"wed":0,"thu":0,"fri":0,"sat":0,"oneShot":2,"day":32,"month":13,"year":0},alarm6:{"free":0,"enable":0,"pin":50,"onHr":25,"onMin":61,"offHr":25,"offMin":61,"sun":0,"mon":0,"tue":0,"wed":0,"thu":0,"fri":0,"sat":0,"oneShot":2,"day":32,"month":13,"year":0},alarm7:{"free":0,"enable":0,"pin":50,"onHr":25,"onMin":61,"offHr":25,"offMin":61,"sun":0,"mon":0,"tue":0,"wed":0,"thu":0,"fri":0,"sat":0,"oneShot":2,"day":32,"month":13,"year":0},alarm8:{"free":0,"enable":0,"pin":50,"onHr":25,"onMin":61,"offHr":25,"offMin":61,"sun":0,"mon":0,"tue":0,"wed":0,"thu":0,"fri":0,"sat":0,"oneShot":2,"day":32,"month":13,"year":0},alarm9:{"free":0,"enable":0,"pin":50,"onHr":25,"onMin":61,"offHr":25,"offMin":61,"sun":0,"mon":0,"tue":0,"wed":0,"thu":0,"fri":0,"sat":0,"oneShot":2,"day":32,"month":13,"year":0}}
+
+
+=======================================================================================
+=======================================================================================
+
+
+// document.getElementById("putJ").addEventListener("click", function (e) {
+  //   console.log("hi gaurav");
+  //   let xhr = new XMLHttpRequest();
+  //   xhr.onreadystatechange = () => {
+  //     if (xhr.readyState == 4) {
+  //       if (xhr.status == 200) {
+  //         console.log("Hi gaurav its ready..");
+  //         let result = xhr.responseText;
+  //         var resObj = JSON.parse(result);
+  //         console.log(resObj);
+  //       }
+  //     }
+  //   };
+  //   xhr.open("GET", "http://192.168.144.155/alarmjson", true);
+  //   xhr.send();
+  // });

@@ -1,1 +1,16 @@
+        ┏━┓┏━╸┏━┓╺┳┓┏┳┓┏━╸
+        ┣┳┛┣╸ ┣━┫ ┃┃┃┃┃┣╸ 
+        ╹┗╸┗━╸╹ ╹╺┻┛╹ ╹┗━╸
+
+╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸
+╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸
+
 This project contains all code to manage wifi and hotspot settings.
+
+=> Data folder is a filesystem for the esp8266 board.
+
+=> Extras folder is folder for codes for texting puspose. I decided to maintain 
+    it for future reference rather than deleting it..
+
+=> src file contains all the actual binaries and all header files which are directly
+    included in the main scetch itself.

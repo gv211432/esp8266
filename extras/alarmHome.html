@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body,
+      html {
+        background-color: #e0e0e4;
+      }
+      body,
+      p,
+      input,
+      select,
+      textarea,
+      button {
+        font-family: "Montserrat", sans-serif;
+        letter-spacing: -0.2px;
+        font-size: 9px;
+      }
+      div,
+      p {
+        color: #babecc;
+        text-shadow: 1px 1px 1px #fff;
+      }
+      form {
+        padding: 30px;
+        width: 320px;
+        margin: 0 auto;
+      }
+      .segment {
+        padding: 10px 0;
+        text-align: center;
+      }
+      select,
+      button,
+      input {
+        border: 0;
+        outline: none !important;
+        font-size: 16px;
+        border-radius: 320px;
+        padding: 16px;
+        background-color: #ebecf0;
+      }
+      input {
+        margin-right: 8px;
+        box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 10px #fff;
+        width: 100%;
+        box-sizing: border-box;
+        transition: all 0.2s ease-in-out;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+      input:focus {
+        box-shadow: inset 1px 1px 2px #babecc, inset -1px -1px 2px #fff;
+      }
+      button {
+        outline: none !important;
+        color: #61677c;
+        font-weight: bold;
+        box-shadow: -2px -2px 5px #fff, 2px 2px 5px #babecc;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .red:active,
+      .unit:active {
+        box-shadow: inset 1px 1px 2px #babecc, inset -1px -1px 2px #fff;
+      }
+      button .icon {
+        margin-right: 8px;
+      }
+      button.unit {
+        border-radius: 50%;
+        line-height: 0;
+        width: 52px;
+        height: 52px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 8px;
+        font-size: 19.2px;
+      }
+      button.unit .icon {
+        margin-right: 0;
+      }
+      select,
+      button.red {
+        display: block;
+        width: 100%;
+        color: #ae1100;
+      }
+      .input-group {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+      }
+      .input-group label {
+        margin: 0;
+        flex: 1;
+      }
+      select {
+        width: 220px;
+        -webkit-appearance: none;
+        box-shadow: -2px -2px 5px #fff, 2px 2px 5px #babecc;
+        text-align: center;
+        font-weight: 900;
+        cursor: pointer;
+      }
+      select:active {
+        box-shadow: inset 1px 1px 2px #babecc, inset -1px -1px 2px #fff;
+      }
+      .test {
+        color: #d2e3e4;
+      }
+    </style>
+    <!-- <script src="http://192.168.144.155/jquery.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body id="body">
+    <div
+      id="mainBody"
+      style="display: flex; justify-content: center; position: relative"
+    >
+      <div
+        style="
+          position: absolute;
+          background-color: pink;
+          width: 380px;
+          height: 380px;
+          border-radius: 20px 20px 0 0;
+          z-index: -1;
+          opacity: 0;
+        "
+        id="hider0"
+      ></div>
+      <div
+        style="
+          width: 380px;
+          border-radius: 20px;
+          margin-bottom: 10px;
+          box-shadow: -2px -2px 5px #fff, 2px 2px 5px #babecc;
+        "
+      >
+        <form action="" id="formNum0">
+          <div class="custom-select">
+            <!-- Start ----------------------------------------------- -->
+            <button
+              class="unit special"
+              type="button"
+              id="buttonNum0"
+              style="
+                float: left;
+                box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 10px #fff;
+                margin-right: 30px;
+              "
+            >
+              --
+            </button>
+            <!-- End ----------------------------------------------- -->
+
+            <!-- Start ----------------------------------------------- -->
+            <select id="select0">
+              <option value="option">Select Appliance &#9662;</option>
+              <option value="fan">Fan One Hall &#10048;</option>
+              <option value="2">Fan Two Hall</option>
+              <option value="light">Tubelight Hall &#9728;</option>
+              <option value="4">Fan BedRoom</option>
+              <option value="5">Light Bedroom</option>
+              <option value="6">Fan Kitchen</option>
+              <option value="7">Light Kitchen</option>
+              <option value="8">All Drawingroom</option>
+            </select>
+          </div>
+          <br /><br />
+
+          <!-- Extra info -->
+          <h2 id="alarmInfo"></h2>
+          <h1 id="alarmAssist"></h1>
+
+          <!-- Start ----------------------------------------------- -->
+          <input
+            type="text"
+            id="onHr0"
+            name="onHr0"
+            placeholder="On Hr"
+            style="width: 90px; display: inline"
+          />
+          <span style="float: right; width: 220px; margin-top: -10px">
+            <h2 id="showOnceInfo">
+              You can only use ON function or OFF function. If On is filled OFF
+              will be IGNORED.. This alarm will be disabled once its completed.
+              No date means todays date applied.
+            </h2>
+          </span>
+          <button class="unit" type="button" id="buttonMon0" ison="0">
+            mon
+          </button>
+          <button class="unit" type="button" id="buttonTue0" ison="0">
+            Tue
+          </button>
+          <button class="unit" type="button" id="buttonWed0" ison="0">
+            wed
+          </button>
+          <br />
+          <br />
+          <!-- End ----------------------------------------------- -->
+
+          <!-- Start ----------------------------------------------- -->
+          <input
+            type="text"
+            placeholder="On Min"
+            id="onMin0"
+            name="onMin0"
+            style="width: 90px; display: inline"
+          />
+          <button class="unit" type="button" id="buttonThu0" ison="0">
+            Thu
+          </button>
+          <button class="unit" type="button" id="buttonFri0" ison="0">
+            Fri
+          </button>
+          <button class="unit" type="button" id="buttonSat0" ison="0">
+            Sat
+          </button>
+          <br />
+          <br />
+          <!-- End ----------------------------------------------- -->
+
+          <!-- Start ----------------------------------------------- -->
+          <input
+            type="text"
+            placeholder="Off Hr"
+            id="offHr0"
+            name="offHr0"
+            style="width: 90px; display: inline"
+          />
+
+          <button
+            class="unit special del"
+            type="button"
+            id="buttonDel0"
+            isdel="0"
+            style="
+              width: 129px;
+              border-radius: 320px;
+              background-color: #ec4a4a33;
+            "
+          >
+            Delete
+          </button>
+          <button class="unit" type="button" id="buttonSun0" ison="0">
+            Sun
+          </button>
+
+          <br />
+          <br />
+          <!-- End ----------------------------------------------- -->
+
+          <!-- Start ----------------------------------------------- -->
+          <input
+            type="text"
+            placeholder="Off Min"
+            id="offMin0"
+            style="width: 90px; display: inline"
+          />
+          <button
+            class="unit special once"
+            type="button"
+            id="buttonOnce0"
+            isonce="0"
+            style="padding: 27px"
+          >
+            Once
+          </button>
+          <button
+            class="unit special enable"
+            type="button"
+            id="enable0"
+            isenable="0"
+            style="width: 129px; border-radius: 320px"
+          >
+            Enable
+          </button>
+          <br />
+          <br />
+          <!-- End ----------------------------------------------- -->
+          <h2 id="manifest"></h2>
+          <!-- Start ----------------------------------------------- -->
+          <div id="myDate">
+            <input
+              type="text"
+              placeholder="Day"
+              id="day0"
+              name="day0"
+              style="width: 96px; display: inline"
+            />
+            <input
+              type="text"
+              placeholder="Month"
+              id="month0"
+              name="month0"
+              style="width: 96px; display: inline"
+            />
+            <input
+              type="text"
+              placeholder="Year"
+              id="year0"
+              name="year0"
+              style="width: 96px; display: inline"
+            />
+            <!-- End ----------------------------------------------- -->
+
+            <br /><br /><br />
+          </div>
+
+          <button class="red" type="button" id="addAlarm0" isok="0">
+            Add New Alarm
+          </button>
+        </form>
+
+        <!-- End ----------------------------------------------- -->
+        <br />
+      </div>
+    </div>
+  </body>
+  <script>
+    // ========================================================================================
+    // ========================================================================================
+    $(function () {
+      // Following is for original alarm filling assistence to user
+      $("input").on({
+        focus: function () {
+          $("#alarmInfo").text(
+            "Alarm must be written in 24Hr format!! where 0 equals 12am and 12 equals 12pm"
+          );
+        },
+        keyup: function () {
+          if ($(this).attr("id") == "onHr0") {
+            $("#alarmAssist").text(
+              "Valid time is in between 0 and 23, ON time in hour is : " +
+                $(this).val()
+            );
+          }
+          if ($(this).attr("id") == "onMin0") {
+            $("#alarmAssist").text(
+              "Valid time is in between 0 and 59, ON time in minutes is : " +
+                $(this).val()
+            );
+          }
+          if ($(this).attr("id") == "offHr0") {
+            $("#alarmAssist").text(
+              "Valid time is in between 0 and 23, OFF time in hour is : " +
+                $(this).val()
+            );
+          }
+          if ($(this).attr("id") == "offMin0") {
+            $("#alarmAssist").text(
+              "Valid time is in between 0 and 59, OFF time in minutes is : " +
+                $(this).val()
+            );
+          }
+        },
+      });
+
+      // Following is the code when once button is clicked
+      let once = $("#buttonOnce0");
+      let myDate = $("#myDate");
+      let myShowOnceInfo = $("#showOnceInfo");
+
+      let dayButton = $(".unit").not(".special");
+
+      once.on("click", function () {
+        if ($(this).attr("isonce") == 0) {
+          $(this).css("background-color", "hsla(64, 97%, 62%, 0.4)");
+          myDate.slideDown("slow");
+          $(this).attr("isonce", "1");
+          dayButton.hide();
+          myShowOnceInfo.fadeIn("slow");
+          return;
+        }
+        myShowOnceInfo.hide();
+        dayButton.fadeIn("slow");
+        myDate.slideUp("slow");
+        $(this).attr("isonce", "0").css("background-color", "#ebecf0");
+      });
+
+      $("#myDate").hide();
+      // $(".unit").not(".special").hide();
+      $("#showOnceInfo").hide();
+
+      // =================================================================
+      // getting the stauts json file
+      $.getJSON("http://localhost/json", function (result) {
+        // setting the alarm count number to index the form...
+        let alarmCount = 1;
+
+        let appliances = { 1: "fan", 2: "light" };
+
+        //looping through each json entity present in the received file..
+        $.each(result, (i, field) => {
+          // for free field equals to 1 we will generate a full form
+          if (field.free == 1) {
+            if (field.oneShot == 0) {
+            }
+
+            if (field.oneShot == 1) {
+            }
+
+            //Cloning the original form present in this html file
+            let myClon = $("#mainBody").clone().attr("id", i);
+
+            // Getting all the found elements
+            // =================================================================
+            //Most important the EDIT button..
+            let myHider = myClon.find("#hider0").attr("id", i + "hider");
+
+            let newAlarmInfo = myClon.find("#alarmInfo");
+            newAlarmInfo.attr("id", i + alarmInfo);
+
+            let newAlarmAssist = myClon.find("#alarmAssist");
+            newAlarmAssist.attr("id", i + "alarmAssist");
+
+            let myAddAlarm = myClon
+              .find("#addAlarm0")
+              .attr("id", i + "edit")
+              .text("Edit Alarm")
+              .css({ color: "#babecc" });
+
+            //Handling the enable button toggles
+            let myEnable = myClon.find("#enable0");
+
+            let myDel = myClon.find("#buttonDel0").attr("id", i + "Del");
+
+            let formEle = myClon.find("#formNum0").attr("id", i + "form");
+
+            let once = myClon.find("#buttonOnce0").attr("id", i + "once");
+            let myDate = myClon.find("#myDate").attr("id", i + "mydate");
+            let myShowOnceInfo = myClon
+              .find("#showOnceInfo")
+              .attr("id", i + "onceInfo");
+            let dayButton = myClon.find(".unit").not(".special");
+
+            // =================================================================
+
+            //changing the selected appliances on the page according to the alarm
+            let selectAppliance = myClon
+              .find("#select0")
+              .attr("id", i + "app")
+              .children("[value='" + appliances[field.pin] + "']");
+
+            selectAppliance.attr("selected", "");
+
+            // changing the id of the cloned div tag containging the form
+            myClon.find("#buttonNum0").text(alarmCount);
+            alarmCount++;
+
+            let myOnHr = myClon.find("#onHr0");
+            myOnHr.attr({ id: i + "onHr", value: field.onHr });
+
+            let myOnMin = myClon.find("#onMin0");
+            myOnMin.attr({ id: i + "onMin", value: field.onMin });
+
+            let myOffHr = myClon
+              .find("#offHr0")
+              .attr({ id: i + "offHr", value: field.offHr });
+
+            let myOffMin = myClon.find("#offMin0");
+            myOffMin.attr({ id: i + "offMin", value: field.offMin });
+
+            let myMon = myClon.find("#buttonMon0");
+            myMon.attr("id", i + "mon");
+            if (field.mon == 1) {
+              myMon.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+              myMon.attr("ison", "1");
+            }
+
+            let myTue = myClon.find("#buttonTue0");
+            myTue.attr("id", i + "tue");
+            if (field.tue == 1) {
+              myTue.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+              myTue.attr("ison", "1");
+            }
+
+            let myWed = myClon.find("#buttonWed0");
+            myWed.attr("id", i + "wed");
+            if (field.wed == 1) {
+              myWed.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+              myWed.attr("ison", "1");
+            }
+
+            let myThu = myClon.find("#buttonThu0");
+            myThu.attr("id", i + "thu");
+            if (field.thu == 1) {
+              myThu.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+              myThu.attr("ison", "1");
+            }
+
+            let myFri = myClon.find("#buttonFri0");
+            myFri.attr("id", i + "fri");
+            if (field.fri == 1) {
+              myFri.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+              myFri.attr("ison", "1");
+            }
+
+            let mySat = myClon.find("#buttonSat0");
+            mySat.attr("id", i + "sat");
+            if (field.sat == 1) {
+              mySat.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+              mySat.attr("ison", "1");
+            }
+
+            let mySun = myClon.find("#buttonSun0");
+            mySun.attr("id", i + "sun");
+            if (field.sun == 1) {
+              mySun.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+              mySun.attr("ison", "1");
+            }
+
+            myEnable.attr("id", i + "enable");
+            if (field.enable == 1) {
+              myEnable
+                .css({ "background-color": "rgba(143, 235, 135, 0.4)" })
+                .text("Enabled")
+                .attr("isenable", "1");
+            }
+            myEnable.click(function () {
+              if ($(this).attr("isenable") == 1) {
+                $(this)
+                  .css({ "background-color": "#ebecf0" })
+                  .attr("isenable", "0");
+                myAddAlarm
+                  .css({ "background-color": "green", color: "#d2e3e4" })
+                  .attr("isok", "1")
+                  .text("Disable Alarm!!");
+
+                if (once.attr("isonce") == 1) {
+                  myHider.css({ height: "480px" });
+                }
+
+                myHider.css({ "z-index": "0" }).click(function () {
+                  myEnable
+                    .css({ "background-color": "rgba(143, 235, 135, 0.4)" })
+                    .attr("isenable", "1");
+                  myAddAlarm
+                    .css({ "background-color": "#ebecf0", color: "#babecc" })
+                    .attr("isok", "0")
+                    .text("Edit Alarm");
+                  myHider.css({ "z-index": "-1", height: "420px" }).off();
+                });
+              }
+            });
+
+            //Handling the delete button toggles
+            // =================================================================
+            myDel.click(function () {
+              if ($(this).attr("isdel") == 0) {
+                $(this)
+                  .css({ "background-color": "#ebecf0" })
+                  .attr("isdel", "1");
+
+                myAddAlarm
+                  .css({
+                    "background-color": "#ae1100",
+                    color: "#d2e3e4",
+                  })
+                  .attr("isok", "1")
+                  .text("Delete Alarm!!!!");
+                newAlarmAssist.text("");
+                if (once.attr("isonce") == 1) {
+                  myHider.css({ height: "480px" });
+                }
+                myHider.css({ "z-index": "0" }).click(function () {
+                  myDel
+                    .css({ "background-color": "#ec4a4a33" })
+                    .attr("isdel", "0");
+
+                  myAddAlarm
+                    .css({
+                      "background-color": "#ebecf0",
+                      color: "#babecc",
+                    })
+                    .attr("isok", "0")
+                    .text("Edit Alarm");
+                  myHider.css({ "z-index": "-1", height: "420px" }).off();
+                });
+              }
+            });
+
+            // Following code checkes for any actual changes made to send the server
+            // It also validates the hour and minutes limits..
+
+            // this is for input section
+            formEle.children("input").keyup(function () {
+              let butId = $(this).attr("id").substr(6);
+              console.log($(this).val());
+              if ($(this).val() == field[butId] || $(this).val() == "") {
+                $("#" + i + "edit")
+                  .css({ color: "#babecc" })
+                  .attr("isok", "0");
+                return;
+              }
+              if (butId == "onHr" || butId == "offHr") {
+                if ($(this).val() <= 23) {
+                  $("#" + i + "edit")
+                    .css({ color: "#ae1100" })
+                    .attr("isok", "1");
+                  return;
+                }
+                $("#" + i + "edit")
+                  .css({ color: "#babecc" })
+                  .attr("isok", "0");
+              }
+              if (butId == "onMin" || butId == "offMin") {
+                if ($(this).val() <= 59) {
+                  $("#" + i + "edit")
+                    .css({ color: "#ae1100" })
+                    .attr("isok", "1");
+                  return;
+                }
+                $("#" + i + "edit")
+                  .css({ color: "#babecc" })
+                  .attr("isok", "0");
+              }
+            });
+
+            let butPressKeep = [];
+            // this is for button section
+            formEle.children("button[ison]").on({
+              click: function () {
+                //Following is the handler for weekdays buttons configuration changes
+                let butId = $(this).attr("id").substr(6);
+                console.log(field[butId]);
+
+                //Checking if the buttons don't have the same ison value
+                // When buttons are clicked they toggle their ison value and then following validation occurs
+                if ($(this).attr("ison") != field[butId]) {
+                  // recreasing the items in butPressKeep as ison dosent match..
+                  butPressKeep.pop(1);
+                  console.log("Length " + butPressKeep.length);
+                  if (butPressKeep.length == 0) {
+                    $("#" + i + "edit")
+                      .css({ color: "#babecc" })
+                      .attr("isok", "0");
+                  }
+                  return;
+                }
+                // If they have the same ison value then add 1 to the butPressKeep array
+                // representing the change to buttons
+                butPressKeep.push(1);
+                $("#" + i + "edit")
+                  .css({ color: "#ae1100" })
+                  .attr("isok", "1");
+              },
+            });
+
+            // Following code shows small summery of alarm just below the enable button
+            myClon
+              .find("#manifest")
+              .text(
+                "This alarm will switch on " +
+                  selectAppliance.text() +
+                  " at " +
+                  field.onHr +
+                  ":" +
+                  field.onMin +
+                  " and switch it off at " +
+                  field.offHr +
+                  ":" +
+                  field.offMin
+              );
+
+            // Following is the code when once button is clicked
+            // =================================================================
+
+            once.on("click", function () {
+              if ($(this).attr("isonce") == 0) {
+                $(this).css("background-color", "hsla(64, 97%, 62%, 0.4)");
+                myDate.slideDown("slow");
+                $(this).attr("isonce", "1");
+                myClon.find(".unit").not(".special").hide();
+                myShowOnceInfo.fadeIn("slow");
+                return;
+              }
+              myShowOnceInfo.hide();
+              dayButton.fadeIn("slow");
+              myDate.slideUp("slow");
+              $(this).attr("isonce", "0").css("background-color", "#ebecf0");
+            });
+
+            // Finally add the cloned form befor the original one..
+            $("#mainBody").before(myClon);
+          }
+        });
+
+        $(".unit")
+          .not(".special")
+          .click(function () {
+            if ($(this).css("background-color") != "rgb(235, 236, 240)") {
+              $(this).css({ "background-color": "rgb(235, 236, 240)" });
+              $(this).attr("ison", "0");
+            } else {
+              $(this).css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+              $(this).attr("ison", "1");
+            }
+          });
+      });
+      // ========================================
+    });
+  </script>
+</html>
