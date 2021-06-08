@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Alarms</title>
-    <link rel="stylesheet" href="http://192.168.166.155/style.css" />
+    <link rel="stylesheet" href="http://192.168.225.155/style.css" />
     <style>
       .card {
         width: 380px;
@@ -19,7 +19,7 @@
         position: relative;
       }
     </style>
-    <script src="http://192.168.166.155/jquery.js"></script>
+    <script src="http://192.168.225.155/jquery.js"></script>
   </head>
   <body id="body">
     <br /><br />
@@ -545,7 +545,7 @@
         }
 
         allError.slideDown();
-        $.get("http://192.168.166.155/setalarm" + setTheAlarm, function () {
+        $.get("http://192.168.225.155/setalarm" + setTheAlarm, function () {
           setTimeout(() => window.location.reload(), 1000);
         });
       });
@@ -556,7 +556,7 @@
 
       // =================================================================
       // getting the stauts json file
-      $.getJSON("http://192.168.166.155/alarmjson", function (result) {
+      $.getJSON("http://192.168.225.155/alarmjson", function (result) {
         // setting the alarm count number to index the form...
         let alarmCount = 1;
         let timeForClone = new Date();
@@ -1408,7 +1408,7 @@
 
                 console.log(setTheAlarm);
                 $.get(
-                  "http://192.168.166.155/setalarm" + setTheAlarm,
+                  "http://192.168.225.155/setalarm" + setTheAlarm,
                   function () {
                     setTimeout(() => window.location.reload(), 1000);
                   }
@@ -1496,7 +1496,7 @@
         //All about time fetching and showing on first card..
 
         let dTime = $("#showTime");
-        $.getJSON("http://192.168.166.155/gettime", (data, status) => {
+        $.getJSON("http://192.168.225.155/gettime", (data, status) => {
           var myWeekDay = [
             "omit",
             "Sun",

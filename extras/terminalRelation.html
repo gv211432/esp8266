@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="http://192.168.124.155/style.css" />
+    <script src="http://192.168.124.155/jquery.js"></script>
+    <style>
+      .btn:active {
+        box-shadow: inset 1px 1px 2px #babecc, inset -1px -1px 2px #fff;
+      }
+      .btn {
+        width: 52px;
+      }
+    </style>
+    <title>Terminal Relation</title>
+  </head>
+  <body>
+    <div id="root">
+      <center>
+        <div class="card">
+          <h1 style="font-size: 27px; padding: 20px 0 0 0">
+            Terminal Relations..
+          </h1>
+          <div style="width: 290px; text-align: start">
+            <ul style="font-size: 12px; font-weight: 900; padding: 0 0 30px 0">
+              <li>
+                Terminals available to use as MASTERS are
+                <span id="allMaster" style="color: #d1ce0d"></span>
+              </li>
+              <li>
+                Terminals available to use as SLAVES are
+                <span id="allSlaves" style="color: #d1ce0d"></span>
+              </li>
+              <li>Any declared master cannot be used as slave!</li>
+              <li>Any declared slave cannot be used as master!</li>
+              <li>Maximum slave for a master is 5</li>
+              <li>Slaves written in input box must be comma separated..</li>
+              <li>
+                NOTE: &#x213C; is for PULL_UP, &#x2191; is for on HIGH and
+                &#x2193; is for on LOW
+              </li>
+              <li style="color: #d1ce0d" id="time">....</li>
+            </ul>
+          </div>
+        </div>
+        <br /><br />
+        <div class="card" id="demoElement">
+          <div style="width: 340px; padding: 40px 0 40px 0">
+            <span>
+              <input
+                type="text"
+                id="master"
+                style="width: 150px"
+                placeholder="Master"
+              />
+              <span style="padding: 5px"></span>
+              <button class="btn arrow" id="myRotater1">
+                <div
+                  style="color: #61677c; margin: -5px; font-size: 25px"
+                  id="rotating1"
+                  ison="1"
+                >
+                  &#x2191;
+                </div></button
+              ><span style="padding: 10px"></span>
+              <button class="btn" ison="0" id="pullup">&#x213C;</button>
+            </span>
+            <br /><br /><br />
+            <span>
+              <input
+                type="text"
+                id="slave"
+                style="width: 228px"
+                placeholder="Slaves"
+              />
+              <span style="padding: 5px"></span>
+              <button class="btn arrow" id="myRotater2">
+                <div
+                  style="color: #61677c; margin: -5px; font-size: 25px"
+                  id="rotating2"
+                  ison="0"
+                >
+                  &#x2193;
+                </div>
+              </button>
+            </span>
+            <br /><br /><br />
+            <span
+              ><button class="red" id="save" style="width: 300px">
+                Add Relation
+              </button></span
+            >
+          </div>
+        </div>
+      </center>
+    </div>
+  </body>
+  <script>
+    $(function () {
+      $.getJSON("http://192.168.124.155/gettime", (data, status) => {
+        var myWeekDay = [
+          "omit",
+          "Sun",
+          "Mon",
+          "Tue",
+          "Wed",
+          "Thu",
+          "Fri",
+          "Sat",
+        ];
+        let myMonth = [
+          "omit",
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        let secIncre = data.sec;
+        let minIncre = data.min;
+        setInterval(() => {
+          if (secIncre == 60) {
+            minIncre++;
+            secIncre = 0;
+          }
+          if (minIncre == 60) {
+            window.location.reload();
+          }
+          let showTime =
+            "" +
+            myWeekDay[data.wDay] +
+            " " +
+            myMonth[data.mon] +
+            " " +
+            data.day +
+            " " +
+            data.yr +
+            " " +
+            data.hr +
+            ":" +
+            minIncre +
+            ":" +
+            secIncre +
+            " (Local Time)";
+          $("#time").text(showTime);
+          secIncre++;
+        }, 1000);
+      });
+
+      $.getJSON("http://192.168.124.155/pinRelation?read", (data, status) => {
+        if (status == "success") {
+          let allBossTerminals = [];
+          let allSlaveTerminals = [];
+
+          // Creating new clone card for showing up..
+          data.pinRel.forEach((element) => {
+            allBossTerminals.push(element["boss"]);
+
+            let myClone = $("#demoElement").clone().attr("id", element["boss"]);
+
+            myClone.find("#master").val(element["boss"]);
+            let slaveStr = "";
+            element["slave"].forEach((e) => {
+              allSlaveTerminals.push(e);
+              slaveStr += "P" + e + ",";
+            });
+            let slave = slaveStr.substr(0, slaveStr.length - 1);
+            console.log(slave);
+            console.log(slaveStr);
+            myClone.find("#slave").val(slave);
+
+            myClone.find("#myRotator1").attr("id", "btn1" + element["boss"]);
+            myClone.find("#myRotator2").attr("id", "btn2" + element["boss"]);
+
+            let bOn = myClone
+              .find("#rotating1")
+              .attr("id", "bOn" + element["boss"]);
+
+            if (element["bOn"] == 1) bOn.html("&#x2191;");
+            else bOn.html("&#x2193;");
+
+            let bInUp = myClone
+              .find("#pullup")
+              .attr("id", "bInUp" + element["boss"]);
+
+            if (element["bInUp"] == 1)
+              bInUp.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+            else bInUp.css({ "background-color": "rgb(235, 236, 240)" });
+
+            let sOn = myClone
+              .find("#rotating2")
+              .attr("id", "sOn" + element["boss"]);
+
+            let remove = myClone
+              .find("#save")
+              .attr("id", "remove" + element["boss"])
+              .css({ "background-color": "#ae1100", color: "white" })
+              .text("Release Relation");
+
+            remove.click(function () {
+              $.ajax({
+                url: `http://192.168.124.155/pinRelation?pin=${element["boss"]}`,
+              }).done((data) => {
+                if (data == "ok") window.location.reload();
+                setTimeout(() => window.location.reload(), 2000);
+              });
+            });
+
+            // Writting to the Information card some inforations..
+            $.getJSON(
+              "http://192.168.124.155/pinCount",
+              (dataSec, statusSec) => {
+                if (statusSec == "success") {
+                  let myTerminals = "";
+
+                  dataSec.allInPin.forEach((elementSec) => {
+                    let shouldInclude = true;
+                    // Boss terminal should not be other boss terminal
+                    allBossTerminals.forEach((element) => {
+                      if (element == elementSec) {
+                        shouldInclude = false;
+                      }
+                    });
+                    // Boss termianl should not be other slave terminal..
+                    allSlaveTerminals.forEach((element) => {
+                      if (element == elementSec) {
+                        shouldInclude = false;
+                      }
+                    });
+                    // If not matched then it will be true..
+                    if (shouldInclude) {
+                      myTerminals += "P" + elementSec + ", ";
+                    }
+                  });
+                  if (myTerminals == "") {
+                    $("#allMaster").text(
+                      "No Terminal availabe, Please free some!!"
+                    );
+                  } else {
+                    $("#allMaster").text(myTerminals);
+                  }
+
+                  myTerminals = "";
+                  dataSec.allOutPin.forEach((elementSec) => {
+                    let shouldInclude = true;
+
+                    // Slave shouls not be boss terminal..
+                    allBossTerminals.forEach((element) => {
+                      if (element == elementSec) {
+                        shouldInclude = false;
+                      }
+                    });
+                    // If not matched then it will be true..
+                    if (shouldInclude) {
+                      myTerminals += "P" + elementSec + ", ";
+                    }
+                  });
+
+                  if (myTerminals == "") {
+                    $("#allSlaves").text(
+                      "No Terminal availabe, Please free some!!"
+                    );
+                  } else {
+                    $("#allSlaves").text(myTerminals);
+                  }
+                }
+              }
+            );
+
+            // Inserting the clone into the webpage.
+            $("#demoElement").after(myClone);
+          });
+        }
+      });
+
+      let pos1 = 0;
+
+      $("#myRotater1").click(function () {
+        if ($("#rotating1").attr("ison") == 0) {
+          $("#rotating1").attr("ison", "1");
+        } else {
+          $("#rotating1").attr("ison", "0");
+        }
+        let myele = document.querySelector("#rotating1");
+        let id = setInterval(frame, 5);
+        let firstPos = pos1 + 180;
+        function frame() {
+          if (pos1 == firstPos) {
+            clearInterval(id);
+          } else {
+            pos1 += 3;
+            myele.style = `color: #61677c; margin: -5px; font-size: 25px;transform: rotate(${pos1}deg)`;
+          }
+        }
+      });
+
+      let pos2 = 0;
+
+      $("#myRotater2").click(function () {
+        if ($("#rotating2").attr("ison") == 0) {
+          $("#rotating2").attr("ison", "1");
+        } else {
+          $("#rotating2").attr("ison", "0");
+        }
+
+        let myele = document.querySelector("#rotating2");
+        let id = setInterval(frame, 5);
+        let firstPos = pos2 + 180;
+        function frame() {
+          if (pos2 == firstPos) {
+            clearInterval(id);
+          } else {
+            pos2 += 3;
+            myele.style = `color: #61677c; margin: -5px; font-size: 25px;transform: rotate(${pos2}deg)`;
+          }
+        }
+      });
+
+      let pullup = $("#pullup").click(function () {
+        if (pullup.attr("ison") == 0) {
+          pullup
+            .attr("ison", "1")
+            .css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+        } else {
+          pullup
+            .attr("ison", "0")
+            .css({ "background-color": "rgb(235, 236, 240)" });
+        }
+      });
+
+      function pinExtract(anyString) {
+        let finalValue = "";
+        if (anyString[0] == "p" || anyString[0] == "P") {
+          finalValue = anyString.substr(1);
+        } else if (isNaN(anyString) == false) {
+          finalValue = anyString;
+        }
+        return finalValue;
+      }
+
+      let saveBtn = $("#save").click(() => {
+        // new object to send as response form client..
+        let objToSend = {};
+        let newSlaveArr = [];
+
+        //  Boss filled in the obj
+        let gotMaster = $("#master").val();
+        if (gotMaster.trim() != "") {
+          objToSend.boss = pinExtract(gotMaster);
+        }
+
+        //  Slave array creation.. and insertion in object
+        let gotSlave = $("#slave").val();
+        if (gotSlave.trim() != "") {
+          let slaveArr = gotSlave.split(",");
+          console.log(slaveArr);
+          slaveArr.forEach((element) => {
+            let pay = element.trim();
+            newSlaveArr.push(pinExtract(pay));
+          });
+          objToSend.slave = newSlaveArr;
+        }
+        objToSend.bOn = $("#rotating1").attr("ison");
+        objToSend.bInUp = $("#pullup").attr("ison");
+        objToSend.sOn = $("#rotating2").attr("ison");
+        console.log(JSON.stringify(objToSend));
+        let myPayload = JSON.stringify(objToSend);
+
+        $.ajax({
+          url: "http://192.168.124.155/pinRelation",
+          headers: { pinRel: myPayload },
+        }).done((data) => {
+          if (data == "ok") {
+            window.location.reload();
+            setTimeout(() => window.location.reload(), 2000);
+          }
+        });
+      });
+    });
+  </script>
+</html>

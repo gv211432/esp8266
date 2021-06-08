@@ -5,106 +5,91 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Time settings</title>
-    <link rel="stylesheet" href="http://192.168.218.155/style.css" />
-    <script src="http://192.168.218.155/jquery.js"></script>
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
-    <style>
-      .middleIt {
-        display: flex;
-        justify-content: center;
-        text-align: center;
-      }
-    </style>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/jquery.js"></script>
   </head>
   <body>
-    <div class="middleIt">
-      <div
-        class="middleIt"
-        style="
-          width: 380px;
-          box-shadow: -2px -2px 5px #fff, 2px 2px 5px #babecc;
-          border-radius: 20px;
-          margin-bottom: 10px;
-        "
-      >
-        <div id="timeMain" style="width: 330px">
-          <br />
-          <h1 style="font-size: 30px">Time Settings..</h1>
-          <h2>Your Browser's time</h2>
-          <h1 id="bTime">....</h1>
-          <h2>Your Device's time</h2>
-          <h1 id="deviceTime">....</h1>
+    <div id="inActivator"></div>
+    <div id="root">
+      <center>
+        <div
+          style="
+            width: 380px;
+            box-shadow: -2px -2px 5px #fff, 2px 2px 5px #babecc;
+            border-radius: 20px;
+            margin-bottom: 10px;
+          "
+        >
+          <div id="timeMain" style="width: 330px">
+            <br />
+            <h1 style="font-size: 30px">Time Settings..</h1>
+            <h2>Your Browser's time</h2>
+            <h1 id="bTime">....</h1>
+            <h2>Your Device's time</h2>
+            <h1 id="deviceTime">....</h1>
 
-          <button class="red" id="setBtime">Set Browser's time</button>
-          <h2 id="setInfo" style="color: #d1ce0d"></h2>
-          <br /><br />
+            <button class="red" id="setBtimeNow">Set Browser's time</button>
+            <h2 id="setInfo" style="color: #d1ce0d"></h2>
+            <br /><br />
+            <h1>OR set it maunally down here...</h1>
+            <h2>You can change any number of values here.</h2>
 
-          <!-- Start----------------------------------------------- -->
+            <div id="myTime">
+              <input
+                type="text"
+                placeholder="Hours"
+                id="hour"
+                style="width: 96px; display: inline"
+              />
+              <input
+                type="text"
+                placeholder="Minutes"
+                id="minute"
+                style="width: 96px; display: inline"
+              />
+              <input
+                type="text"
+                placeholder="Second"
+                id="second"
+                style="width: 96px; display: inline"
+              />
+            </div>
+            <br /><br />
 
-          <h1>OR set it maunally down here...</h1>
-          <h2>You can change any number of values here.</h2>
+            <div id="myDate">
+              <input
+                type="text"
+                placeholder="Day"
+                id="day"
+                style="width: 96px; display: inline"
+              />
+              <input
+                type="text"
+                placeholder="Month"
+                id="month"
+                style="width: 96px; display: inline"
+              />
+              <input
+                type="text"
+                placeholder="Year"
+                id="year"
+                style="width: 96px; display: inline"
+              />
+            </div>
+            <br /><br />
+            <button class="red" id="setManually">OR Set Manually</button>
 
-          <div id="myTime">
-            <input
-              type="text"
-              placeholder="Hours"
-              id="hour"
-              style="width: 96px; display: inline"
-            />
-            <input
-              type="text"
-              placeholder="Minutes"
-              id="minute"
-              style="width: 96px; display: inline"
-            />
-            <input
-              type="text"
-              placeholder="Second"
-              id="second"
-              style="width: 96px; display: inline"
-            />
+            <h1 style="color: #d1ce0d" id="dateWarn"></h1>
+
+            <br /><br /><br />
           </div>
-          <!-- End ----------------------------------------------- -->
-          <br /><br />
-
-          <!-- Start----------------------------------------------- -->
-
-          <div id="myDate">
-            <input
-              type="text"
-              placeholder="Day"
-              id="day"
-              style="width: 96px; display: inline"
-            />
-            <input
-              type="text"
-              placeholder="Month"
-              id="month"
-              style="width: 96px; display: inline"
-            />
-            <input
-              type="text"
-              placeholder="Year"
-              id="year"
-              style="width: 96px; display: inline"
-            />
-          </div>
-          <br /><br />
-          <!-- End ----------------------------------------------- -->
-
-          <button class="red" id="setManually">OR Set Manually</button>
-
-          <h1 style="color: #d1ce0d" id="dateWarn"></h1>
-
-          <br /><br /><br />
         </div>
-      </div>
+      </center>
     </div>
+    <div><button id="menuBtn">&#9776;</button></div>
+    %MENU%
   </body>
   <script>
-    let time = {
-      this: "hi",
-    };
     $(function () {
       let dTime = $("#deviceTime");
       let setInfo = $("#setInfo");
@@ -112,7 +97,7 @@
       let dw = $("#dateWarn");
       dw.hide();
 
-      $.getJSON("http://192.168.218.155/gettime", (data, status) => {
+      $.getJSON("/gettime", (data, status) => {
         var myWeekDay = [
           "omit",
           "Sun",
@@ -176,8 +161,8 @@
         bTime.text(myTime);
       }, 1000);
 
-      let setBtime = $("#setBtime");
-      setBtime.hover(
+      let setBtimeNow = $("#setBtimeNow");
+      setBtimeNow.hover(
         function () {
           setInfo
             .text(
@@ -191,7 +176,8 @@
           setInfo.slideUp(150);
         }
       );
-      setBtime.click(function () {
+
+      setBtimeNow.click(function () {
         let d = new Date();
         let setTheDate =
           "?h=" +
@@ -207,7 +193,7 @@
           "&y=" +
           d.getFullYear();
 
-        $.get("http://192.168.218.155/settime" + setTheDate, function () {
+        $.get("/settime" + setTheDate, function () {
           setTimeout(() => {
             window.location.reload();
           }, 1500);
@@ -288,7 +274,6 @@
           }
 
           if (yr.val()) {
-            // let myYr = yr.val();
             if (isNaN(yr.val()) || yr.val().length != 4) {
               setManStatus = false;
               dw.text("Problem with year.. Mention full year!!");
@@ -337,9 +322,10 @@
             setmon +
             "&y=" +
             setyr;
-
-          console.log(setTheDate);
-          $.get("http://192.168.218.155/settime" + setTheDate, function () {
+          $.get("/settime" + setTheDate, function (data) {
+            if (data == "ok") {
+              window.location.reload();
+            }
             setTimeout(() => {
               window.location.reload();
             }, 1500);
@@ -348,4 +334,5 @@
       });
     });
   </script>
+  <script src="/jquery.js?menu"></script>
 </html>

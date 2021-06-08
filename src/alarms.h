@@ -25,8 +25,9 @@ void alarmLoop(int alarmOne[18])
             {
                 if (alarmOne[weekday() + 6] == 1)
                 {
-                    pinMode(alarmOne[2], OUTPUT);
-                    digitalWrite(alarmOne[2], LOW);
+                    // pinMode(alarmOne[2], OUTPUT);
+                    // digitalWrite(alarmOne[2], LOW);
+                    PinControl.toggleThePin(alarmOne[2], 0);
                     return;
                 }
             }
@@ -35,8 +36,10 @@ void alarmLoop(int alarmOne[18])
                 if (alarmOne[weekday() + 6] == 1)
                 {
                     Serial.println("Executed off job");
-                    pinMode(alarmOne[2], OUTPUT);
-                    digitalWrite(alarmOne[2], HIGH);
+                    // pinMode(alarmOne[2], OUTPUT);
+                    // digitalWrite(alarmOne[2], HIGH);
+                    PinControl.toggleThePin(alarmOne[2], 1);
+
                     return;
                 }
             }
@@ -47,8 +50,10 @@ void alarmLoop(int alarmOne[18])
 
             if (alarmOne[6] == minute() && alarmOne[5] == hour() && alarmOne[15] == day() && alarmOne[16] == month() && alarmOne[17] == year())
             {
-                pinMode(alarmOne[2], OUTPUT);
-                digitalWrite(alarmOne[2], HIGH);
+                // pinMode(alarmOne[2], OUTPUT);
+                // digitalWrite(alarmOne[2], HIGH);
+                PinControl.toggleThePin(alarmOne[2], 1);
+
                 alarmOne[1] = 0;
                 return;
             }
@@ -59,8 +64,10 @@ void alarmLoop(int alarmOne[18])
 
             if (alarmOne[4] == minute() && alarmOne[3] == hour() && alarmOne[15] == day() && alarmOne[16] == month() && alarmOne[17] == year())
             {
-                pinMode(alarmOne[2], OUTPUT);
-                digitalWrite(alarmOne[2], LOW);
+                // pinMode(alarmOne[2], OUTPUT);
+                // digitalWrite(alarmOne[2], LOW);
+                PinControl.toggleThePin(alarmOne[2], 0);
+
                 alarmOne[1] = 0;
                 return;
             }
@@ -112,7 +119,7 @@ void alarmRecover()
                 f.close();
 
                 // Creating json object of json text file..
-                // Sparing 256 bytes for the same in the memory for my doc array..
+                // Sparing 512 bytes for the same in the memory for my doc array..
                 DynamicJsonDocument doc(512);
                 // Assigning the same in doc array..
                 // Values can be read using keys in the json file..
@@ -143,4 +150,6 @@ void alarmRecover()
             }
         }
     }
+    //Unmounting the file system..
+    LittleFS.end();
 }

@@ -4,174 +4,81 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wifi Settings..</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/jquery.js"></script>
+    <style>
+      th,
+      td {
+        height: 70px;
+      }
+      tr {
+        height: 20px;
+        text-align: center;
+      }
+      input {
+        width: 250px;
+      }
+    </style>
+    <title>Naming Pins</title>
   </head>
-  <body style="font-size: 16px">
-    <div>
+  <body>
+    <div id="inActivator"></div>
+    <div id="root">
       <center>
-        <h2>Wifi Settings..</h2>
-        <fieldset style="width: 350px; border-radius: 8px">
-          <br />
-          <form
-            method="GET"
-            action="#"
-            id="login-form"
-            class="login-form"
-            autocomplete="off"
-            role="main"
-          >
-            <div>
-              <label for="wifiname">Wifi Name* </label>
-              <input
-                type="text"
-                class="text"
-                name="wifiname"
-                id="wifiname"
-                placeholder="Wifi Name"
-                tabindex="1"
-                required
-              />
-            </div>
-            <br />
-            <div>
-              <label for="wifipass">Wifi Password*</label>
-              <input
-                type="password"
-                class="text"
-                name="wifipass"
-                itemid="wifipass"
-                id="wifipass"
-                placeholder="Wifi Password"
-                tabindex="1"
-                required
-              />
-            </div>
-            <br />
-            <div>
-              <label for="hotname">Hotspot Name*</label>
-              <input
-                type="text"
-                class="text"
-                name="hotname"
-                id="hotname"
-                placeholder="Hotspot Name"
-                tabindex="1"
-                required
-              />
-            </div>
-            <br />
-            <div>
-              <label for="hotpass">Hotspot Password*</label>
-              <input
-                type="password"
-                class="text"
-                name="hotpass"
-                id="hotpass"
-                placeholder="Hotspot Password"
-                tabindex="1"
-                required
-              />
-            </div>
-            <br />
-            <div>
-              <label for="hotname">User Name*</label>
-              <input
-                type="text"
-                class="text"
-                name="username"
-                id="username"
-                placeholder="User Name"
-                tabindex="1"
-                required
-              />
-            </div>
-            <br />
-            <div>
-              <label for="lockpass">Lock Password*</label>
-              <input
-                type="password"
-                class="text"
-                name="lockpass"
-                id="lockpass"
-                placeholder="Lock Password"
-                tabindex="1"
-                required
-              />
-            </div>
-            <br />
-            <div>
-              <span
-                onclick="hidePass()"
-                style="cursor: pointer; text-decoration: underline"
-                >Show Passwords!!
-              </span>
-            </div>
-            <br />
-            <input
-              type="submit"
-              name="submit"
-              value="Save Settings"
-              id="toSubmit"
-            />
-          </form>
-          <br />
-        </fieldset>
+        <div class="middleIt">
+          <br /><br />
+          <div class="card middleIt">
+            <table style="padding: 5px; width: 100%">
+              <!-- Titel where the table starts from -->
+              <tr id="tableTitle">
+                <td style="border-bottom: 1px solid rgb(209, 206, 206)">
+                  <p style="font-size: 10px; color: #ae1100; font-weight: 700">
+                    Available terminals
+                  </p>
+                </td>
+                <td style="border-bottom: 1px solid rgb(209, 206, 206)">
+                  <h2 style="font-size: 20px; padding-left: 20px">
+                    Name Terminals
+                  </h2>
+                </td>
+              </tr>
+
+              <!-- Demo element for duplication -->
+              <tr id="demoRow">
+                <td><h1 id="demoTerminal">P2</h1></td>
+                <td><input type="text" id="demoInput" placeholder="Name" /></td>
+              </tr>
+
+              <!-- Save button for savin the edited changes.. -->
+              <tr id="response">
+                <td></td>
+                <td style="text-align: start; padding-left: 70px">
+                  <p style="font-size: 14px; color: green">
+                    Set successfully..
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td style="border-top: 1px solid rgb(209, 206, 206)"></td>
+                <td
+                  style="
+                    width: 300px;
+                    height: 100px;
+                    border-top: 1px solid rgb(209, 206, 206);
+                  "
+                >
+                  <button class="red" style="margin-left: -30px" id="submit">
+                    Save It
+                  </button>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
       </center>
     </div>
-    <script>
-      var myOBJ = %OBJ%;
-      put = () => {
-        let wifiName = document.getElementById("wifiname");
-        wifiName.value = myOBJ.wifi;
-
-        let wifiPass = document.getElementById("wifipass");
-        wifiPass.value = myOBJ.wifipw;
-
-        let hotName = document.getElementById("hotname");
-        hotName.value = myOBJ.ap;
-
-        let hotPass = document.getElementById("hotpass");
-        hotPass.value = myOBJ.appw;
-
-        let userName = document.getElementById("username");
-        userName.value = myOBJ.user;
-
-        let lockPass = document.getElementById("lockpass");
-        lockPass.value = myOBJ.lock;
-      };
-      put();
-
-      document.getElementById("toSubmit").addEventListener("click", (e) => {
-        e.preventDefault();
-        var confirmIt = confirm(
-          "You are one step back to change system settings. This process will reset your device!! Press OK to confirm..."
-        );
-        if (confirm === true) {
-          let wifiName = document.getElementById("wifiname").value;
-          let wifiPass = document.getElementById("wifipass").value;
-          let hotName = document.getElementById("hotname").value;
-          let hotPass = document.getElementById("hotpass").value;
-          let userName = document.getElementById("username").value;
-          let lockPass = document.getElementById("lockpass").value;
-
-          let myLink = `/changesettings?wifiname=${wifiName}&wifipass=${wifiPass}&hotname=${hotName}&hotpass=${hotPass}&lockpass=${lockPass}&user=${userName}&submit=save+settings#`;
-
-          var xhttp1 = new XMLHttpRequest();
-          xhttp1.open("GET", myLink, true);
-          xhttp1.send();
-        }
-      });
-
-      function hidePass() {
-        let wifiPass = document.getElementById("wifipass");
-        let hotPass = document.getElementById("hotpass");
-        let lockPass = document.getElementById("lockpass");
-
-        wifiPass.type = "text";
-        hotPass.type = "text";
-        lockPass.type = "text";
-        return;
-      }
-    </script>
+    <div><button id="menuBtn">&#9776;</button></div>
+    %MENU%
   </body>
+  <script></script>
 </html>

@@ -1,0 +1,3 @@
+const char menuScript[] PROGMEM = R"rawliteral(
+    let menuBtn=$("#menuBtn").click(function (){$("#root").css({filter: "blur(8px)"}); $("#myMenu").css({display: "block"}); $("#inActivator").css({"z-index": "8"});}); let menuCancel=$("#menuCancle").click(function (){$("#root").css({filter: "blur(0px)"}); $("#myMenu").css({display: "none"}); $("#inActivator").css({"z-index": "-8"}); $("#menuBtn").css({position: "fixed", right: "20px", bottom: "20px"});});
+)rawliteral";

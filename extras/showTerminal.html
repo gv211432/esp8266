@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/jquery.js"></script>
+    <title>Show Terminal</title>
+    <style>
+      th,
+      tr {
+        border-bottom: 0.3px rgb(206, 203, 203) solid;
+        padding: 5px;
+      }
+      button:active {
+        box-shadow: inset 1px 1px 2px #babecc, inset -1px -1px 2px #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="inActivator"></div>
+    <div id="root">
+      <center>
+        <div class="card">
+          <h1 style="padding: 40px 0 10px 0; font-size: 25px">
+            Show Terminal Buttons
+          </h1>
+          <!-- Information section for use -->
+          <div id="information" style="width: 290px">
+            <ul
+              style="
+                font-size: 14px;
+                font-weight: 900;
+                text-align: start;
+                padding: 4px;
+              "
+            >
+              <li>There are fixed number of termianls for output</li>
+              <li>
+                You can choose to show buttons of them on home page for direct
+                control.
+              </li>
+              <li id="showTime"></li>
+            </ul>
+          </div>
+          <div id="mainTable">
+            <table style="font-size: 14px">
+              <tr>
+                <th>Terminals</th>
+                <th>Show/Hide</th>
+              </tr>
+              <tr id="demoRow">
+                <th><h1 id="terminal" style="color: #d1ce0d">P2</h1></th>
+                <th>
+                  <button id="status" ison="1" style="width: 200px">
+                    Hidden!!
+                  </button>
+                </th>
+              </tr>
+              <tr>
+                <h2 id="response" style="color: green"></h2>
+              </tr>
+            </table>
+          </div>
+          <br /><br />
+        </div>
+      </center>
+    </div>
+    <div><button id="menuBtn">&#9776;</button></div>
+    %MENU%
+  </body>
+  <script>
+    $(function () {
+      let demoElement = $("#demoRow");
+      demoElement.hide();
+
+      $.getJSON("/pinCount", function (data) {
+        $.getJSON("/pinBoss", function (data2) {
+          // Creating function for cloning element and inserting into the page..
+          function elementPlace(element, data) {
+            let myClone = demoElement.clone().attr("id", "row" + element);
+            let terminal = myClone
+              .find("#terminal")
+              .attr("id", "p" + element)
+              .text("P" + element);
+            let button = myClone.find("#status").attr("id", "status" + element);
+
+            button.click(function () {
+              let myPayload = "?pin=" + element + "&add=" + button.attr("ison");
+
+              $.ajax({
+                url: "/pinShow" + myPayload,
+              }).done(function (data) {
+                if (data == "ok") {
+                  if (button.attr("ison") == 0) {
+                    button
+                      .removeClass("red")
+                      .attr("ison", "1")
+                      .text("Hidden!!");
+                  } else if (button.attr("ison") == 1) {
+                    button.addClass("red").attr("ison", "0").text("Showing..");
+                  }
+
+                  $("#response").text("Set Successfully..").slideDown(150);
+                  setInterval(() => $("#response").slideUp(150), 2000);
+                }
+              });
+            });
+
+            demoElement.before(myClone);
+            myClone.show();
+          }
+          data.allOutPin.forEach((element) => {
+            if (data2.bosspin != "") {
+              data2.bosspin.forEach((element2) => {
+                if (element != element2) {
+                  elementPlace(element, data);
+                }
+              });
+            } else {
+              elementPlace(element, data);
+            }
+          });
+        });
+
+        $.getJSON("/ip", (data) => {
+          let wsClient = new WebSocket("ws://" + data.localIp + "/ws");
+          wsClient.addEventListener("open", (ws, event) => {
+            wsClient.onmessage = (event) => {
+              console.log(event.data);
+              wsClient.close();
+
+              let myObj = JSON.parse(event.data);
+
+              myObj.pinOnOff.forEach((element) => {
+                console.log(element.no);
+                $("#status" + element.no)
+                  .addClass("red")
+                  .attr("ison", "0")
+                  .text("Showing..");
+              });
+            };
+          });
+        });
+      });
+    });
+  </script>
+  <script src="/jquery.js?menu"></script>
+</html>

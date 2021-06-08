@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="http://192.168.124.155/style.css" />
+    <script src="http://192.168.124.155/jquery.js"></script>
+    <style>
+      th,
+      td {
+        height: 70px;
+      }
+      tr {
+        height: 20px;
+        text-align: center;
+      }
+      input {
+        width: 250px;
+      }
+    </style>
+    <title>Naming Pins</title>
+  </head>
+  <body>
+    <div class="middleIt">
+      <br /><br />
+      <div class="card middleIt">
+        <table style="padding: 5px; width: 100%">
+          <!-- Titel where the table starts from -->
+          <tr id="tableTitle">
+            <td style="border-bottom: 1px solid rgb(209, 206, 206)">
+              <p style="font-size: 10px; color: #ae1100; font-weight: 700">
+                Available terminals
+              </p>
+            </td>
+            <td style="border-bottom: 1px solid rgb(209, 206, 206)">
+              <h2 style="font-size: 20px; padding-left: 20px">
+                Name Terminals
+              </h2>
+            </td>
+          </tr>
+
+          <!-- Demo element for duplication -->
+          <tr id="demoRow">
+            <td><h1 id="demoTerminal">P2</h1></td>
+            <td><input type="text" id="demoInput" placeholder="Name" /></td>
+          </tr>
+
+          <!-- Save button for savin the edited changes.. -->
+          <tr id="response">
+            <td></td>
+            <td style="text-align: start; padding-left: 70px">
+              <p style="font-size: 14px; color: green">Set successfully..</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="border-top: 1px solid rgb(209, 206, 206)"></td>
+            <td
+              style="
+                width: 300px;
+                height: 100px;
+                border-top: 1px solid rgb(209, 206, 206);
+              "
+            >
+              <button class="red" style="margin-left: -30px" id="submit">
+                Save It
+              </button>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Table ends here -->
+      </div>
+    </div>
+  </body>
+  <script>
+    $(function () {
+      let demoElement = $("#demoRow").hide();
+      let myResponse = $("#response").hide();
+      let myPinCheckWell = [-1];
+
+      // Getting datqa form the esp server..
+      $.getJSON("http://192.168.124.155/pinCount", (field, status) => {
+        if (status == "success") {
+          let iterationStatus = true;
+
+          //    This prints all element on page with INput characters..
+          field.allInPin.forEach((element) => {
+            iterationStatus = true;
+            myPinCheckWell.forEach((everyE) => {
+              if (everyE == element) {
+                iterationStatus = false;
+              }
+            });
+
+            if (iterationStatus == true) {
+              myPinCheckWell.push(element);
+
+              let demoClone = demoElement.clone();
+              demoClone.attr("id", "row" + element);
+              demoElement.find("#demoRow").attr("id", "row" + element);
+              demoClone
+                .find("#demoTerminal")
+                .attr("id", "P" + element)
+                .text("P" + element)
+                .css({ color: "rgb(209, 206, 13)" });
+              demoClone.find("#demoInput").attr("id", "name" + element);
+              demoElement.after(demoClone);
+              demoClone.show();
+            }
+          });
+
+          // This field will repeat some pins so validation is applied before validation..
+          //  This prints all element on page with Output characters pins may repeat..
+          field.allOutPin.forEach((element) => {
+            iterationStatus = true;
+
+            myPinCheckWell.forEach((everyE) => {
+              if (everyE == element) {
+                iterationStatus = false;
+              }
+            });
+
+            if (iterationStatus == true) {
+              myPinCheckWell.push(element);
+
+              let demoClone = demoElement.clone();
+              demoClone.attr("id", "row" + element);
+
+              demoElement.find("#demoRow").attr("id", "row" + element);
+              demoClone
+                .find("#demoTerminal")
+                .attr("id", "P" + element)
+                .text("P" + element)
+                .css({ color: "rgb(209, 206, 13)" });
+              demoClone.find("#demoInput").attr("id", "name" + element);
+              demoElement.before(demoClone);
+              demoClone.show();
+            }
+
+            $.getJSON("http://192.168.124.155/pinName", (field, status) => {
+              if (status == "success") {
+                field.pinTheme.forEach((element) => {
+                  $("#name" + element["no"]).val(element["name"]);
+                });
+              }
+            });
+          });
+        }
+
+        $("#submit").hover(
+          () => {
+            $("#submit").css({ "background-color": "#ae1100", color: "white" });
+          },
+          () => {
+            $("#submit").css({
+              "background-color": "#ebecf0",
+              color: "#ae1100",
+            });
+          }
+        );
+
+        $("#submit").on({
+          click: () => {
+            //   Removing the very first element from the array..
+            myPinCheckWell.shift();
+
+            // Creating new object to send to server for process as meaning of this session..
+            let pinSendObj = {};
+            pinSendObj.pinTheme = [];
+            myPinCheckWell.forEach((element) => {
+              if ($("#name" + element).val() != "") {
+                let instanceObj = {};
+                instanceObj.no = element;
+                let thisAppName = $("#name" + element)
+                  .val()
+                  .trim();
+                instanceObj.name = thisAppName;
+                pinSendObj.pinTheme.push(instanceObj);
+              }
+            });
+
+            let payloadToSend = JSON.stringify(pinSendObj);
+
+            console.log(pinSendObj);
+
+            // Sending the reqest to server with additional headers..
+            $.ajax({
+              url: "http://192.168.124.155/setPinName",
+              headers: {
+                setName: payloadToSend,
+              },
+            }).done(function (data) {
+              if (data == "ok") {
+                // window.location.reload();
+                myResponse.slideDown(150);
+                setInterval(() => myResponse.slideUp(150), 2000);
+              }
+            });
+          },
+        });
+      });
+    });
+  </script>
+</html>

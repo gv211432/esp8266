@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Testing</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/jquery.js"></script>
+    <style>
+      .gearIcon {
+        position: absolute;
+        right: 85px;
+        bottom: 8px;
+        font-size: 35px;
+        color: #ae1100;
+      }
+      @-webkit-keyframes rotating {
+        from {
+          -webkit-transform: rotate(0deg);
+        }
+        to {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+
+      .rotating {
+        -webkit-animation: rotating 3s linear infinite;
+      }
+      .container {
+        height: 220px;
+      }
+      .isOff {
+        color: #babecc;
+      }
+      .isOff:active {
+        box-shadow: inset 1px 1px 2px #babecc, inset -1px -1px 2px #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="inActivator"></div>
+    <center>
+      <div id="root">
+        <center>
+          <div class="container card" id="onOffButtons">
+            <h1 style="padding-top: 29px; font-size: 30px" id="demoName">
+              ......
+            </h1>
+            <button
+              style="width: 280px; position: relative"
+              id="btnSwitch"
+              ison="1"
+            >
+              <span id="btnTxt" style="font-size: 19px">ON..</span>
+              <div class="gearIcon" id="gear">&#9881;</div>
+            </button>
+            <p style="font-size: 12px; font-weight: 900">
+              <span id="part1Info"></span>
+              <span id="part2Info" style="color: #d1ce0d"></span>
+            </p>
+            <p style="font-size: 12px; font-weight: 900; margin-top: -10px">
+              The Terminal <span id="part1Term" style="color: #d1ce0d"></span>
+              <span id="part2Term"></span>
+            </p>
+          </div>
+        </center>
+      </div>
+    </center>
+    <div><button id="menuBtn">&#9776;</button></div>
+    %MENU%
+  </body>
+  <script>
+    $(function () {
+      let myDemoElement = $("#onOffButtons");
+      myDemoElement.hide();
+
+      let firstJson = 0;
+      let wsOnIp = "";
+      $.getJSON("/ip", (data) => {
+        let wsClient = new WebSocket("ws://" + data.localIp + "/ws");
+        wsClient.addEventListener("open", (ws, event) => {
+          wsClient.onmessage = (event) => {
+            // Doing this function for the first time..
+            // console.log(event.data);
+
+            // Making object of retrieved data for easy use..
+            let myPinStat = JSON.parse(event.data);
+            let myPinArr = myPinStat.pinOnOff;
+            if (firstJson == 0) {
+              myPinArr.forEach((e) => {
+                // e means element here.. of current iteration..
+                // Creating new clone to feed all the terminals value..
+                let myClone = myDemoElement
+                  .clone()
+                  .attr("id", "onOffBtn" + e["no"]);
+
+                let terminalName = myClone
+                  .find("#demoName")
+                  .attr("id", "name" + e["no"]);
+
+                let btnSwitch = myClone
+                  .find("#btnSwitch")
+                  .attr("id", "btnSwitch" + e["no"])
+                  .click(function () {
+                    let myPayload =
+                      "?pin=" + e["no"] + "&to=" + $(this).attr("ison");
+                    // console.log(myPayload);
+                    $.get("/switch" + myPayload);
+                  });
+
+                let btnTxt = myClone
+                  .find("#btnTxt")
+                  .attr("id", "btnTxt" + e["no"]);
+
+                let gear = myClone.find("#gear").attr("id", "gear" + e["no"]);
+
+                let part1Info = myClone
+                  .find("#part1Info")
+                  .attr("id", "part1Info" + e["no"]);
+
+                let part2Info = myClone
+                  .find("#part2Info")
+                  .attr("id", "part2Info" + e["no"]);
+
+                let part1Term = myClone
+                  .find("#part1Term")
+                  .attr("id", "part1Term" + e["no"]);
+
+                let part2Term = myClone
+                  .find("#part2Term")
+                  .attr("id", "part2Term" + e["no"]);
+
+                // If terminal is on(active low..)
+                if (e["is"] == 0) {
+                  btnSwitch.addClass("red").attr("ison", "1");
+                  btnTxt.text("ON..");
+                  gear.addClass("rotating");
+                  part1Info.text("Last switched ON at ");
+                  part2Info.text(e["hr"] + ":" + e["min"]);
+                  part1Term.text("P" + e["no"]);
+                  part2Term.text("in on LOAD**");
+                }
+                // If termainal is Off
+                if (e["is"] == 1) {
+                  btnSwitch.addClass("isOff").attr("ison", "0");
+                  btnTxt.text("OFF");
+                  gear.addClass("isOff");
+                  part1Info.text("Last switched OFF at ");
+                  part2Info.text(e["hr"] + ":" + e["min"]);
+                  part1Term.text("P" + e["no"]);
+                  part2Term.text("in on NO LOAD..");
+                }
+
+                $("#root").append(myClone);
+                myClone.show();
+              });
+
+              $.getJSON("/pinName", (data) => {
+                data.pinTheme.forEach((e) => {
+                  $("#name" + e["no"]).text(e["name"]);
+                });
+              });
+              firstJson = 1;
+            }
+
+            // Will trigger every time the message comes..
+            // If terminal is on
+
+            myPinArr.forEach((e) => {
+              if (e["is"] == 0) {
+                $("#btnSwitch" + e["no"])
+                  .removeClass("isOff")
+                  .addClass("red")
+                  .attr("ison", "1");
+
+                $("#btnTxt" + e["no"]).text("ON..");
+
+                $("#gear" + e["no"])
+                  .removeClass("isOff")
+                  .addClass("rotating");
+
+                $("#part1Info" + e["no"]).text("Last switched ON at ");
+                $("#part2Info" + e["no"]).text(e["hr"] + ":" + e["min"]);
+                $("#part1Term" + e["no"]).text("P" + e["no"]);
+                $("#part2Term" + e["no"]).text("in on LOAD**");
+              }
+              // If terminal is off..
+
+              if (e["is"] == 1) {
+                $("#btnSwitch" + e["no"])
+                  .removeClass("red")
+                  .addClass("isOff")
+                  .attr("ison", "0");
+
+                $("#btnTxt" + e["no"]).text("OFF");
+
+                $("#gear" + e["no"])
+                  .removeClass("rotating")
+                  .addClass("isOff");
+
+                $("#part1Info" + e["no"]).text("Last switched OFF at ");
+                $("#part2Info" + e["no"]).text(e["hr"] + ":" + e["min"]);
+                $("#part1Term" + e["no"]).text("P" + e["no"]);
+                $("#part2Term" + e["no"]).text("in on NO LOAD..");
+              }
+            });
+          };
+        });
+      });
+    });
+  </script>
+  <script src="/jquery.js?menu"></script>
+</html>
