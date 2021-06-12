@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Alarms</title>
-    <link rel="stylesheet" href="http://192.168.6.155/style.css" />
+    <link rel="stylesheet" href="/style.css" />
     <style>
       .card {
         width: 380px;
@@ -19,202 +19,202 @@
         position: relative;
       }
     </style>
-    <script src="http://192.168.6.155/jquery.js"></script>
-    <script src="http://192.168.6.155/jquery.js?menu"></script>
+    <script src="/jquery.js"></script>
   </head>
-  <body id="body">
-    <!-- ╻ ╻╺┳╸┏┳┓╻     ┏━╸┏━┓┏━╸┏━┓   ╻ ╻┏━╸┏━┓┏━╸    -->
-    <!-- ┣━┫ ┃ ┃┃┃┃     ┃╺┓┃ ┃┣╸ ┗━┓   ┣━┫┣╸ ┣┳┛┣╸     -->
-    <!-- ╹ ╹ ╹ ╹ ╹┗━╸   ┗━┛┗━┛┗━╸┗━┛   ╹ ╹┗━╸╹┗╸┗━╸╹╹╹ -->
+  <body style="min-height: 900px; padding-top: 100px">
     <br /><br />
-    <div id="mainBody" class="middleIt">
-      <div
-        style="
-          position: absolute;
-          background-color: pink;
-          width: 380px;
-          height: 380px;
-          border-radius: 20px 20px 0 0;
-          z-index: -1;
-          opacity: 0;
-        "
-        id="hider0"
-      ></div>
-      <div class="card">
-        <form action="" id="formNum0">
-          <div class="custom-select">
+    <div id="inActivator"></div>
+    <div id="root">
+      <div id="demoAlarm" class="middleIt">
+        <div
+          style="
+            position: absolute;
+            background-color: pink;
+            width: 380px;
+            height: 380px;
+            border-radius: 20px 20px 0 0;
+            z-index: -1;
+            opacity: 0;
+          "
+          id="hider0"
+        ></div>
+        <div class="card">
+          <form action="" id="formNum0">
+            <div class="custom-select">
+              <!-- Start ----------------------------------------------- -->
+              <button
+                class="unit special"
+                type="button"
+                id="buttonNum0"
+                style="
+                  float: left;
+                  box-shadow: inset 2px 2px 5px #babecc,
+                    inset -5px -5px 10px #fff;
+                  margin-right: 30px;
+                "
+              >
+                --
+              </button>
+              <!-- End ----------------------------------------------- -->
+
+              <!-- Start ----------------------------------------------- -->
+              <select id="select0">
+                <option value="option">Select Appliance &#9662;</option>
+              </select>
+            </div>
+            <br /><br />
+
+            <!-- Extra info -->
+            <h2 id="alarmInfo"></h2>
+            <h1 id="alarmAssist"></h1>
+
             <!-- Start ----------------------------------------------- -->
+            <input
+              type="text"
+              id="onHr0"
+              placeholder="On Hr"
+              style="width: 90px; display: inline"
+            />
+            <span style="float: right; width: 220px; margin-top: -10px">
+              <h2 id="showOnceInfo">
+                You can only use ON function or OFF function. If On is filled
+                OFF will be IGNORED.. This alarm will be disabled once its
+                completed. No date means todays date applied.
+              </h2>
+            </span>
+            <button class="unit" type="button" id="buttonMon0" ison="0">
+              mon
+            </button>
+            <button class="unit" type="button" id="buttonTue0" ison="0">
+              Tue
+            </button>
+            <button class="unit" type="button" id="buttonWed0" ison="0">
+              wed
+            </button>
+            <br />
+            <br />
+            <!-- End ----------------------------------------------- -->
+
+            <!-- Start ----------------------------------------------- -->
+            <input
+              type="text"
+              placeholder="On Min"
+              id="onMin0"
+              style="width: 90px; display: inline"
+            />
+            <button class="unit" type="button" id="buttonThu0" ison="0">
+              Thu
+            </button>
+            <button class="unit" type="button" id="buttonFri0" ison="0">
+              Fri
+            </button>
+            <button class="unit" type="button" id="buttonSat0" ison="0">
+              Sat
+            </button>
+            <br />
+            <br />
+            <!-- End ----------------------------------------------- -->
+
+            <!-- Start ----------------------------------------------- -->
+            <input
+              type="text"
+              placeholder="Off Hr"
+              id="offHr0"
+              style="width: 90px; display: inline"
+            />
+
             <button
-              class="unit special"
+              class="unit special del"
               type="button"
-              id="buttonNum0"
+              id="buttonDel0"
+              isdel="0"
               style="
-                float: left;
-                box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 10px #fff;
-                margin-right: 30px;
+                width: 129px;
+                border-radius: 320px;
+                background-color: #ec4a4a33;
               "
             >
-              --
+              Delete
             </button>
+            <button class="unit" type="button" id="buttonSun0" ison="0">
+              Sun
+            </button>
+
+            <br />
+            <br />
             <!-- End ----------------------------------------------- -->
 
             <!-- Start ----------------------------------------------- -->
-            <select id="select0">
-              <option value="option">Select Appliance &#9662;</option>
-            </select>
-          </div>
-          <br /><br />
-
-          <!-- Extra info -->
-          <h2 id="alarmInfo"></h2>
-          <h1 id="alarmAssist"></h1>
-
-          <!-- Start ----------------------------------------------- -->
-          <input
-            type="text"
-            id="onHr0"
-            placeholder="On Hr"
-            style="width: 90px; display: inline"
-          />
-          <span style="float: right; width: 220px; margin-top: -10px">
-            <h2 id="showOnceInfo">
-              You can only use ON function or OFF function. If On is filled OFF
-              will be IGNORED.. This alarm will be disabled once its completed.
-              No date means todays date applied.
-            </h2>
-          </span>
-          <button class="unit" type="button" id="buttonMon0" ison="0">
-            mon
-          </button>
-          <button class="unit" type="button" id="buttonTue0" ison="0">
-            Tue
-          </button>
-          <button class="unit" type="button" id="buttonWed0" ison="0">
-            wed
-          </button>
-          <br />
-          <br />
-          <!-- End ----------------------------------------------- -->
-
-          <!-- Start ----------------------------------------------- -->
-          <input
-            type="text"
-            placeholder="On Min"
-            id="onMin0"
-            style="width: 90px; display: inline"
-          />
-          <button class="unit" type="button" id="buttonThu0" ison="0">
-            Thu
-          </button>
-          <button class="unit" type="button" id="buttonFri0" ison="0">
-            Fri
-          </button>
-          <button class="unit" type="button" id="buttonSat0" ison="0">
-            Sat
-          </button>
-          <br />
-          <br />
-          <!-- End ----------------------------------------------- -->
-
-          <!-- Start ----------------------------------------------- -->
-          <input
-            type="text"
-            placeholder="Off Hr"
-            id="offHr0"
-            style="width: 90px; display: inline"
-          />
-
-          <button
-            class="unit special del"
-            type="button"
-            id="buttonDel0"
-            isdel="0"
-            style="
-              width: 129px;
-              border-radius: 320px;
-              background-color: #ec4a4a33;
-            "
-          >
-            Delete
-          </button>
-          <button class="unit" type="button" id="buttonSun0" ison="0">
-            Sun
-          </button>
-
-          <br />
-          <br />
-          <!-- End ----------------------------------------------- -->
-
-          <!-- Start ----------------------------------------------- -->
-          <input
-            type="text"
-            placeholder="Off Min"
-            id="offMin0"
-            style="width: 90px; display: inline"
-          />
-          <button
-            class="unit special once"
-            type="button"
-            id="buttonOnce0"
-            isonce="0"
-            style="padding: 27px"
-          >
-            Once
-          </button>
-          <button
-            class="unit special enable"
-            type="button"
-            id="enable0"
-            isenable="0"
-            style="width: 129px; border-radius: 320px"
-          >
-            Enable
-          </button>
-          <br />
-          <br />
-          <!-- End ----------------------------------------------- -->
-          <h2 id="manifest"></h2>
-          <!-- Start ----------------------------------------------- -->
-          <div id="myDate">
             <input
               type="text"
-              placeholder="Day"
-              id="day0"
-              style="width: 96px; display: inline"
+              placeholder="Off Min"
+              id="offMin0"
+              style="width: 90px; display: inline"
             />
-            <input
-              type="text"
-              placeholder="Month"
-              id="month0"
-              style="width: 96px; display: inline"
-            />
-            <input
-              type="text"
-              placeholder="Year"
-              id="year0"
-              style="width: 96px; display: inline"
-            />
+            <button
+              class="unit special once"
+              type="button"
+              id="buttonOnce0"
+              isonce="0"
+              style="padding: 27px"
+            >
+              Once
+            </button>
+            <button
+              class="unit special enable"
+              type="button"
+              id="enable0"
+              isenable="0"
+              style="width: 129px; border-radius: 320px"
+            >
+              Enable
+            </button>
+            <br />
+            <br />
             <!-- End ----------------------------------------------- -->
+            <h2 id="manifest"></h2>
+            <!-- Start ----------------------------------------------- -->
+            <div id="myDate">
+              <input
+                type="text"
+                placeholder="Day"
+                id="day0"
+                style="width: 96px; display: inline"
+              />
+              <input
+                type="text"
+                placeholder="Month"
+                id="month0"
+                style="width: 96px; display: inline"
+              />
+              <input
+                type="text"
+                placeholder="Year"
+                id="year0"
+                style="width: 96px; display: inline"
+              />
+              <!-- End ----------------------------------------------- -->
 
-            <br /><br /><br />
-          </div>
+              <br /><br /><br />
+            </div>
 
-          <button class="red" type="button" id="addAlarm0" isok="0">
-            Add New Alarm
-          </button>
-          <h2 id="allErr" style="text-align: center; color: #d47304"></h2>
-        </form>
+            <button class="red" type="button" id="addAlarm0" isok="0">
+              Add New Alarm
+            </button>
+            <h2 id="allErr" style="text-align: center; color: #d47304"></h2>
+          </form>
 
-        <!-- End ----------------------------------------------- -->
-        <br />
+          <!-- End ----------------------------------------------- -->
+          <br />
+        </div>
       </div>
-    </div>
 
-    <br /><br />
+      <br /><br />
+    </div>
+    <div><button id="menuBtn">&#9776;</button></div>
   </body>
+
   <script>
-    // ========================================================================================
-    // ========================================================================================
     $(function () {
       // ┏━╸╺┳┓╻╺┳╸╻┏┓╻┏━╸   ╺┳╸╻ ╻┏━╸   ┏┓ ┏━┓┏━┓┏━╸   ┏━╸┏━┓┏━┓┏┳┓
       // ┣╸  ┃┃┃ ┃ ┃┃┗┫┃╺┓    ┃ ┣━┫┣╸    ┣┻┓┣━┫┗━┓┣╸    ┣╸ ┃ ┃┣┳┛┃┃┃
@@ -262,7 +262,7 @@
       // ----------------------------------------------
       let appliances = {};
       // let resAppliances = { Hall_Fan: 1, Kitchen_Light: 2 };
-      $.getJSON("http://192.168.6.155/pinName", function (data, status) {
+      $.getJSON("/pinName", function (data, status) {
         console.log(data);
         data.pinTheme.forEach((element) => {
           appliances[element["no"]] = element["name"];
@@ -324,40 +324,56 @@
 
       //Creating handler function for each element..
       // ----------------------------------------------
+      //Creating handler function for each element..
+      // ----------------------------------------------
       buttonMon0.click(() => {
-        $(this).attr("ison") == 1
-          ? $(this).attr("ison", "0")
-          : $(this).attr("ison", "1");
+        buttonMon0.attr("ison") == 1
+          ? buttonMon0.attr("ison", "0").css({ "background-color": "#ebecf0" })
+          : buttonMon0
+              .attr("ison", "1")
+              .css({ "background-color": "#b5dbfb66" });
       });
       buttonTue0.click(() => {
-        $(this).attr("ison") == 1
-          ? $(this).attr("ison", "0")
-          : $(this).attr("ison", "1");
+        buttonTue0.attr("ison") == 1
+          ? buttonTue0.attr("ison", "0").css({ "background-color": "#ebecf0" })
+          : buttonTue0
+              .attr("ison", "1")
+              .css({ "background-color": "#b5dbfb66" });
       });
       buttonWed0.click(() => {
-        $(this).attr("ison") == 1
-          ? $(this).attr("ison", "0")
-          : $(this).attr("ison", "1");
+        buttonWed0.attr("ison") == 1
+          ? buttonWed0.attr("ison", "0").css({ "background-color": "#ebecf0" })
+          : buttonWed0
+              .attr("ison", "1")
+              .css({ "background-color": "#b5dbfb66" });
       });
       buttonThu0.click(() => {
-        $(this).attr("ison") == 1
-          ? $(this).attr("ison", "0")
-          : $(this).attr("ison", "1");
+        buttonThu0.attr("ison") == 1
+          ? buttonThu0.attr("ison", "0").css({ "background-color": "#ebecf0" })
+          : buttonThu0
+              .attr("ison", "1")
+              .css({ "background-color": "#b5dbfb66" });
       });
       buttonFri0.click(() => {
-        $(this).attr("ison") == 1
-          ? $(this).attr("ison", "0")
-          : $(this).attr("ison", "1");
+        buttonFri0.attr("ison") == 1
+          ? buttonFri0.attr("ison", "0").css({ "background-color": "#ebecf0" })
+          : buttonFri0
+              .attr("ison", "1")
+              .css({ "background-color": "#b5dbfb66" });
       });
       buttonSat0.click(() => {
-        $(this).attr("ison") == 1
-          ? $(this).attr("ison", "0")
-          : $(this).attr("ison", "1");
+        buttonSat0.attr("ison") == 1
+          ? buttonSat0.attr("ison", "0").css({ "background-color": "#ebecf0" })
+          : buttonSat0
+              .attr("ison", "1")
+              .css({ "background-color": "#b5dbfb66" });
       });
       buttonSun0.click(() => {
-        $(this).attr("ison") == 1
-          ? $(this).attr("ison", "0")
-          : $(this).attr("ison", "1");
+        buttonSun0.attr("ison") == 1
+          ? buttonSun0.attr("ison", "0").css({ "background-color": "#ebecf0" })
+          : buttonSun0
+              .attr("ison", "1")
+              .css({ "background-color": "#b5dbfb66" });
       });
       enable0.click(() => {
         enable0.attr("isenable") == 0
@@ -375,22 +391,26 @@
       // Following is the code when once button is clicked
       // ----------------------------------------------
       buttonOnce.on("click", function () {
-        if ($(this).attr("isonce") == 0) {
-          $(this).css("background-color", "hsla(64, 97%, 62%, 0.4)");
-          myDate.slideDown("slow");
-          $(this).attr("isonce", "1");
+        if (buttonOnce.attr("isonce") == 0) {
+          buttonOnce.css("background-color", "hsla(64, 97%, 62%, 0.4)");
+          myDate.slideDown(150);
+          buttonOnce.attr("isonce", "1");
           dayButton.hide();
-          myShowOnceInfo.fadeIn("slow");
+          myShowOnceInfo.fadeIn(150);
           return;
         }
         myShowOnceInfo.hide();
-        dayButton.fadeIn("slow");
-        myDate.slideUp("slow");
-        $(this).attr("isonce", "0").css("background-color", "#ebecf0");
+        dayButton.fadeIn(150);
+        myDate.slideUp(150);
+        buttonOnce.attr("isonce", "0").css("background-color", "#ebecf0");
       });
 
+      // Final button to add a alarm vai get request
+      // On hover it validates all the necessary validations
+      let allErrorTimeout = setTimeout(() => {}, 0);
       addAlarm0.hover(
         function () {
+          clearTimeout(allErrorTimeout);
           if (select0.children("option:selected").val() == "option") {
             allError
               .text(
@@ -401,64 +421,113 @@
             return;
           }
 
-          //Checking if ON-HR or OFF-HR both aren't empty..
-          if (onHr0.val() >= 24 || onHr0.val() < 0 || onHr0.val() == "") {
-            if (offHr0.val() >= 24 || offHr0.val() < 0 || offHr0.val() == "") {
-              allError.text(
-                "Problem with ON hour.. ON or OFF must be filled!!"
-              );
+          //Checking if ON-HR is not empty..
+          if (onHr0.val() != "") {
+            if (
+              onHr0.val() >= 24 ||
+              onHr0.val() < 0 ||
+              isNaN(onHr0.val()) == true
+            ) {
+              allError.text("Problem with ON hour..").css("color", "#d47304");
               allError.slideDown(150);
-              $(this).attr("isok", "0");
+              addAlarm0.attr("isok", "0");
+              return;
+            }
+            // Also validate the on minute
+            if (
+              onMin0.val() >= 60 ||
+              onMin0.val() < 0 ||
+              isNaN(onMin0.val()) == true
+            ) {
+              allError.text("Problem with ON minute..").css("color", "#d47304");
+              allError.slideDown(150);
+              addAlarm0.attr("isok", "0");
               return;
             }
           }
 
-          if (offHr0.val() >= 24 || offHr0.val() < 0 || offHr0.val() == "") {
-            if (onHr0.val() >= 24 || onHr0.val() < 0 || onHr0.val() == "") {
-              allError.text("Problem with OFF hour..");
+          // If off hr is not empty pls validate..
+          if (offHr0.val() != "") {
+            if (
+              offHr0.val() >= 24 ||
+              offHr0.val() < 0 ||
+              isNaN(offHr0.val()) == true
+            ) {
+              allError.text("Problem with OFF hour..").css("color", "#d47304");
               allError.slideDown(150);
-              $(this).attr("isok", "0");
+              addAlarm0.attr("isok", "0");
               return;
             }
-          }
 
-          if (onMin0.val() >= 60 || onMin0.val() < 0) {
-            allError.text("Problem with ON minute..");
-            allError.slideDown(150);
-            $(this).attr("isok", "0");
-            return;
-          }
-
-          if (offMin0.val() >= 60 || offMin0.val() < 0) {
-            allError.text("Problem with OFF minute..");
-            allError.slideDown(150);
-            $(this).attr("isok", "0");
-            return;
+            // Also check the off min
+            if (offMin0.val() >= 60 || offMin0.val() < 0) {
+              allError
+                .text("Problem with OFF minute..")
+                .css("color", "#d47304");
+              allError.slideDown(150);
+              addAlarm0.attr("isok", "0");
+              return;
+            }
           }
 
           if (buttonOnce.attr("isonce") == 0) {
-            if (onHr0.val() == "" || offHr0.val() == "") {
-              allError.text("Please mention On Hour and Off Hour..");
+            // If on hr and off hr both is not mentioned then ...
+            if (onHr0.val() == "" && offHr0.val() == "") {
+              allError
+                .text("Please mention On Hour or Off Hour or both..")
+                .css("color", "#d47304");
               allError.slideDown(150);
               return;
             }
-            allError
-              .text(
-                "This alarm will switch ON " +
-                  appliances[select0.children("option:selected").val()] +
-                  " at " +
-                  Number(onHr0.val()) +
-                  ":" +
-                  Number(onMin0.val()) +
-                  " and switch it OFF at " +
-                  Number(offHr0.val()) +
-                  ":" +
-                  Number(offMin0.val())
-              )
-              .css("color", "green");
+
+            if (onHr0.val() != "" && offHr0.val() != "") {
+              allError
+                .text(
+                  "This alarm will switch ON " +
+                    appliances[select0.children("option:selected").val()] +
+                    " at " +
+                    Number(onHr0.val()) +
+                    ":" +
+                    Number(onMin0.val()) +
+                    " and switch it OFF at " +
+                    Number(offHr0.val()) +
+                    ":" +
+                    Number(offMin0.val())
+                )
+                .css("color", "green");
+            }
+
+            if (onHr0.val() != "" && offHr0.val() == "") {
+              allError
+                .text(
+                  "This alarm will switch ON " +
+                    appliances[select0.children("option:selected").val()] +
+                    " at " +
+                    Number(onHr0.val()) +
+                    ":" +
+                    Number(onMin0.val()) +
+                    " on every ticked weekdays until disabled.."
+                )
+                .css("color", "green");
+            }
+
+            if (offHr0.val() != "" && onHr0.val() == "") {
+              allError
+                .text(
+                  "This alarm will switch OFF " +
+                    appliances[select0.children("option:selected").val()] +
+                    " at " +
+                    Number(offHr0.val()) +
+                    ":" +
+                    Number(offMin0.val()) +
+                    " on every ticked weekdays until disabled.."
+                )
+                .css("color", "green");
+            }
             allError.slideDown(150);
           }
 
+          // If once button is clicked the this validation is going to validate it..
           if (buttonOnce.attr("isonce") == 1) {
             if (onHr0.val() != "") {
               allError
@@ -489,20 +558,21 @@
             }
           }
 
-          $(this)
+          // If function reaches the end then isok sets to 1 which means every thing is perfect..
+          addAlarm0
             .css({ "background-color": "#ae1100", color: "white" })
             .attr("isok", "1");
         },
         function () {
-          $(this).css({ "background-color": "#ebecf0", color: "#ae1100" });
-          allError.slideUp(150);
+          addAlarm0.css({ "background-color": "#ebecf0", color: "#ae1100" });
+          allErrorTimeout = setTimeout(() => allError.slideUp(150), 4000);
         }
       );
 
       //Setting new alarm with validations..
       // ----------------------------------------------
       addAlarm0.click(function () {
-        let setTheAlarm;
+        let setTheAlarm = "";
         if (buttonOnce.attr("isonce") == 1) {
           if ($(this).attr("isok") == 1) {
             let switchType = 0;
@@ -526,8 +596,24 @@
               enable0.attr("isenable");
           }
         } else if ($(this).attr("isok") == 1) {
+          let shotVariable = 2;
+
+          // If on hr is filled then..
+          if (onHr0.val() != "") {
+            shotVariable = 4;
+          }
+          // if off hr is filled then..
+          if (offHr0.val() != "") {
+            shotVariable = 3;
+          }
+          // if both are filled then..
+          if (onHr0.val() != "" && offHr0.val() != "") {
+            shotVariable = 2;
+          }
+
           setTheAlarm =
-            "?shot=2" +
+            "?shot=" +
+            shotVariable +
             "&onHr=" +
             onHr0.val() +
             "&onMin=" +
@@ -557,7 +643,9 @@
         }
 
         allError.slideDown();
-        $.get("http://192.168.6.155/setalarm" + setTheAlarm, function () {
+        console.log("Setting alarm");
+        console.log(setTheAlarm);
+        $.get("/setalarm" + setTheAlarm, function () {
           setTimeout(() => window.location.reload(), 1000);
         });
       });
@@ -579,7 +667,7 @@
 
       // =================================================================
       // getting the stauts json file
-      $.getJSON("http://192.168.6.155/alarmjson", function (result) {
+      $.getJSON("/alarmjson", function (result) {
         // setting the alarm count number to index the form...
         let alarmCount = 1;
         let timeForClone = new Date();
@@ -598,7 +686,7 @@
             // ┃  ┃  ┃ ┃┃┗┫┃┃┗┫┃╺┓
             // ┗━╸┗━╸┗━┛╹ ╹╹╹ ╹┗━┛╹╹╹╹╹
             //Cloning the original form present in this html file
-            let myClon = $("#mainBody").clone().attr("id", i);
+            let myClon = $("#demoAlarm").clone().attr("id", i);
 
             // Getting all the found elements
             // ┏━╸╻ ╻┏━┓┏┓╻┏━╸╻┏┓╻┏━╸   ╺┳╸╻ ╻┏━╸   ╻╺┳┓   ┏━┓┏━╸   ┏━╸┏━┓┏━╸╻ ╻
@@ -675,49 +763,91 @@
             myOffMin.attr({ id: i + "offMin", value: field.offMin });
 
             let myMon = myClon.find("#buttonMon0");
-            myMon.attr("id", i + "mon");
+            myMon.attr("id", i + "mon").click(() => {
+              myMon.attr("ison") == 1
+                ? myMon.attr("ison", "0").css({ "background-color": "#ebecf0" })
+                : myMon
+                    .attr("ison", "1")
+                    .css({ "background-color": "#b5dbfb66" });
+            });
             if (field.mon == 1) {
               myMon.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
               myMon.attr("ison", "1");
             }
 
             let myTue = myClon.find("#buttonTue0");
-            myTue.attr("id", i + "tue");
+            myTue.attr("id", i + "tue").click(() => {
+              myTue.attr("ison") == 1
+                ? myTue.attr("ison", "0").css({ "background-color": "#ebecf0" })
+                : myTue
+                    .attr("ison", "1")
+                    .css({ "background-color": "#b5dbfb66" });
+            });
             if (field.tue == 1) {
               myTue.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
               myTue.attr("ison", "1");
             }
 
             let myWed = myClon.find("#buttonWed0");
-            myWed.attr("id", i + "wed");
+            myWed.attr("id", i + "wed").click(() => {
+              myWed.attr("ison") == 1
+                ? myWed.attr("ison", "0").css({ "background-color": "#ebecf0" })
+                : myWed
+                    .attr("ison", "1")
+                    .css({ "background-color": "#b5dbfb66" });
+            });
             if (field.wed == 1) {
               myWed.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
               myWed.attr("ison", "1");
             }
 
             let myThu = myClon.find("#buttonThu0");
-            myThu.attr("id", i + "thu");
+            myThu.attr("id", i + "thu").click(() => {
+              myThu.attr("ison") == 1
+                ? myThu.attr("ison", "0").css({ "background-color": "#ebecf0" })
+                : myThu
+                    .attr("ison", "1")
+                    .css({ "background-color": "#b5dbfb66" });
+            });
             if (field.thu == 1) {
               myThu.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
               myThu.attr("ison", "1");
             }
 
             let myFri = myClon.find("#buttonFri0");
-            myFri.attr("id", i + "fri");
+            myFri.attr("id", i + "fri").click(() => {
+              myFri.attr("ison") == 1
+                ? myFri.attr("ison", "0").css({ "background-color": "#ebecf0" })
+                : myFri
+                    .attr("ison", "1")
+                    .css({ "background-color": "#b5dbfb66" });
+            });
             if (field.fri == 1) {
               myFri.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
               myFri.attr("ison", "1");
             }
 
             let mySat = myClon.find("#buttonSat0");
-            mySat.attr("id", i + "sat");
+            mySat.attr("id", i + "sat").click(() => {
+              mySat.attr("ison") == 1
+                ? mySat.attr("ison", "0").css({ "background-color": "#ebecf0" })
+                : mySat
+                    .attr("ison", "1")
+                    .css({ "background-color": "#b5dbfb66" });
+            });
             if (field.sat == 1) {
               mySat.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
               mySat.attr("ison", "1");
             }
 
             let mySun = myClon.find("#buttonSun0");
-            mySun.attr("id", i + "sun");
+            mySun.attr("id", i + "sun").click(() => {
+              mySun.attr("ison") == 1
+                ? mySun.attr("ison", "0").css({ "background-color": "#ebecf0" })
+                : mySun
+                    .attr("ison", "1")
+                    .css({ "background-color": "#b5dbfb66" });
+            });
             if (field.sun == 1) {
               mySun.css({ "background-color": "rgba(181, 219, 251, 0.4)" });
               mySun.attr("ison", "1");
@@ -740,8 +870,8 @@
 
             myEnable.click(function () {
               // If enable is 1
-              if ($(this).attr("isenable") == 1) {
-                $(this)
+              if (myEnable.attr("isenable") == 1) {
+                myEnable
                   .css({ "background-color": "#ebecf0" })
                   .attr("isenable", "0")
                   .text("Disable");
@@ -770,8 +900,8 @@
               }
 
               // If enable is 1
-              if ($(this).attr("isenable") == 0) {
-                $(this)
+              if (myEnable.attr("isenable") == 0) {
+                myEnable
                   .css({ "background-color": "#ebecf0" })
                   .attr("isenable", "1")
                   .text("Enable");
@@ -803,10 +933,8 @@
             //Handling the delete button toggles
             // =================================================================
             myDel.click(function () {
-              if ($(this).attr("isdel") == 0) {
-                $(this)
-                  .css({ "background-color": "#ebecf0" })
-                  .attr("isdel", "1");
+              if (myDel.attr("isdel") == 0) {
+                myDel.css({ "background-color": "#ebecf0" }).attr("isdel", "1");
 
                 myAddAlarm
                   .css({
@@ -837,348 +965,200 @@
 
             // Following code checkes for any actual changes made to send the server
             // It also validates the hour and minutes limits..
-
             function validationKeyPress() {
-              //when field onshot is 2 means set to ON and OFF function..
-              if (field.oneShot == 2) {
-                if (once.attr("isonce") == 1) {
-                  if (myOnHr.val() != "" || myOffHr.val() != "") {
-                    if (myOffHr.val() != "") {
-                      if (
-                        myOnHr.val() > 23 ||
-                        myOnHr.val() < 0 ||
-                        isNaN(myOnHr.val())
-                      ) {
-                        myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                        return;
-                      }
-                    }
-                    if (myOnMin.val() != "") {
-                      if (
-                        myOnMin.val() > 59 ||
-                        myOnMin.val() < 0 ||
-                        isNaN(myOnMin.val())
-                      ) {
-                        myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                        return;
-                      }
-                    }
-
-                    if (myOffHr.val() != "") {
-                      if (
-                        myOffHr.val() > 23 ||
-                        myOffHr.val() < 0 ||
-                        isNaN(myOffHr.val())
-                      ) {
-                        myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                        return;
-                      }
-                    }
-
-                    if (myOffMin.val() != "") {
-                      if (
-                        myOffMin.val() > 59 ||
-                        myOffMin.val() < 0 ||
-                        isNaN(myOffMin.val())
-                      ) {
-                        myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                        return;
-                      }
-                    }
-
-                    if (myDay.val() != "") {
-                      if (
-                        myDay.val() < 1 ||
-                        myDay.val() > 31 ||
-                        isNaN(myDay.val())
-                      ) {
-                        myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                        return;
-                      }
-                    }
-
-                    if (myMonth.val() != "") {
-                      if (
-                        myMonth.val() < 1 ||
-                        myMonth.val() > 12 ||
-                        isNaN(myMonth.val())
-                      ) {
-                        myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                        return;
-                      }
-                    }
-
-                    if (myYear.val() != "") {
-                      if (
-                        myYear.val() < timeForClone.getFullYear() ||
-                        myYear.val() > 2060 ||
-                        isNaN(myYear.val()) ||
-                        myYear.val().length != 4
-                      ) {
-                        myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                        return;
-                      }
-                    }
-
-                    myAddAlarm.css({ color: "#ae1100" }).attr("isok", "1");
-                    return;
-                  } else {
+              console.log("Validation keypress");
+              myAllErr.slideUp(100);
+              // If on hr is not empty then validate..
+              if (myOnHr.val() != "") {
+                if (
+                  myOnHr.val() > 23 ||
+                  myOnHr.val() < 0 ||
+                  isNaN(myOnHr.val())
+                ) {
+                  if (myOnHr.val() != "----") {
                     myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
+                    myAllErr
+                      .text("On Hour is not valid!!")
+                      .css("color", "#d47304");
+                    myAllErr.slideDown(100);
                     return;
                   }
                 }
-
-                //If is once is 0 then validate its exixting value..
-                if (once.attr("isonce") == 0) {
-                  if (
-                    myOnHr.val() == "" ||
-                    myOnHr.val() > 23 ||
-                    myOnHr.val() < 0 ||
-                    isNaN(myOnHr.val())
-                  ) {
+              }
+              // If on min is not empty then validate..
+              if (myOnMin.val() != "") {
+                if (
+                  myOnMin.val() > 59 ||
+                  myOnMin.val() < 0 ||
+                  isNaN(myOnMin.val())
+                ) {
+                  if (myOnMin.val() != "----") {
                     myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
+                    myAllErr
+                      .text("On Minute is not valid!!")
+                      .css("color", "#d47304");
+                    myAllErr.slideDown(100);
 
-                  if (
-                    myOnMin.val() == "" ||
-                    myOnMin.val() > 59 ||
-                    myOnMin.val() < 0 ||
-                    isNaN(myOnMin.val())
-                  ) {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
-
-                  if (
-                    myOffHr.val() == "" ||
-                    myOffHr.val() > 23 ||
-                    myOffHr.val() < 0 ||
-                    isNaN(myOffHr.val())
-                  ) {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
-
-                  if (
-                    myOffMin.val() == "" ||
-                    myOffMin.val() > 59 ||
-                    myOffMin.val() < 0 ||
-                    isNaN(myOffMin.val())
-                  ) {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
-
-                  if (
-                    myOnHr.val() != field.onHr ||
-                    myOnMin.val() != field.onMin ||
-                    myOffHr.val() != field.offHr ||
-                    myOffMin.val() != field.offMin
-                  ) {
-                    myAddAlarm.css({ color: "#ae1100" }).attr("isok", "1");
-                    return;
-                  } else {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
                     return;
                   }
                 }
               }
 
-              //Field.oneShot 1 or 0 means to set ON or OFF..
-              if (field.oneShot == 0 || field.oneShot == 1) {
-                //when once card is changed to regular..
-                if (once.attr("isonce") == 0) {
-                  if (
-                    myOnHr.val() == "" ||
-                    myOnHr.val() > 23 ||
-                    myOnHr.val() < 0 ||
-                    isNaN(myOnHr.val())
-                  ) {
+              // If off hr is not empty then validate..
+              if (myOffHr.val() != "") {
+                if (
+                  myOffHr.val() > 23 ||
+                  myOffHr.val() < 0 ||
+                  isNaN(myOffHr.val())
+                ) {
+                  if (myOffHr.val() != "----") {
                     myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
+                    myAllErr
+                      .text("Off Hour is not valid!!")
+                      .css("color", "#d47304");
+                    myAllErr.slideDown(100);
 
-                  if (
-                    myOnMin.val() == "" ||
-                    myOnMin.val() > 59 ||
-                    myOnMin.val() < 0 ||
-                    isNaN(myOnMin.val())
-                  ) {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
                     return;
                   }
-                  if (
-                    myOffHr.val() == "" ||
-                    myOffHr.val() > 23 ||
-                    myOffHr.val() < 0 ||
-                    isNaN(myOffHr.val())
-                  ) {
+                }
+              }
+              // If off min is not empty then validate..
+              if (myOffMin.val() != "") {
+                if (
+                  myOffMin.val() > 59 ||
+                  myOffMin.val() < 0 ||
+                  isNaN(myOffMin.val())
+                ) {
+                  if (myOffMin.val() != "----") {
                     myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
-                  if (
-                    myOffMin.val() == "" ||
-                    myOffMin.val() > 59 ||
-                    myOffMin.val() < 0 ||
-                    isNaN(myOffMin.val())
-                  ) {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
+                    myAllErr
+                      .text("Off Minute is not valid!!")
+                      .css("color", "#d47304");
+                    myAllErr.slideDown(100);
 
+                    return;
+                  }
+                }
+              }
+              // If day is not empty then validate..
+              if (myDay.val() != "") {
+                if (myDay.val() < 1 || myDay.val() > 31 || isNaN(myDay.val())) {
+                  myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
+                  myAllErr.text("Day is not valid!!").css("color", "#d47304");
+                  myAllErr.slideDown(100);
+
+                  return;
+                }
+              }
+              // If month is not empty then validate..
+              if (myMonth.val() != "") {
+                if (
+                  myMonth.val() < 1 ||
+                  myMonth.val() > 12 ||
+                  isNaN(myMonth.val())
+                ) {
+                  myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
+                  myAllErr.text("Month is not valid!!").css("color", "#d47304");
+                  myAllErr.slideDown(100);
+
+                  return;
+                }
+              }
+
+              // If year is not empty then validate..
+              if (myYear.val() != "") {
+                if (
+                  myYear.val() < timeForClone.getFullYear() ||
+                  myYear.val() > 2060 ||
+                  isNaN(myYear.val()) ||
+                  myYear.val().length != 4
+                ) {
+                  myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
+                  myAllErr
+                    .text(
+                      "Year is not valid!! Must contain 4 digits.. (From Current - 2060)"
+                    )
+                    .css("color", "#d47304");
+                  myAllErr.slideDown(100);
+
+                  return;
+                }
+              }
+
+              if (once.attr("isonce") == 1) {
+                // if on hr is not empty and valid number
+                if (myOnHr.val() != "" && isNaN(myOnHr.val()) == false) {
+                  if (myOffHr.val() == "" || isNaN(myOffHr.val()) == true) {
+                    if (
+                      myOnHr.val() != field.onHr ||
+                      myOnMin.val() != field.onMin ||
+                      myDay.val() != field.day ||
+                      myMonth.val() != field.month ||
+                      myYear.val() != field.year
+                    ) {
+                      myAddAlarm.css({ color: "#ae1100" }).attr("isok", "1");
+                      return;
+                    }
+                  }
+                } else if (
+                  myOffHr.val() != "" &&
+                  isNaN(myOffHr.val()) == false
+                ) {
+                  // if off hr is not empty and valid number
+                  if (myOnHr.val() == "" || isNaN(myOnHr.val()) == true) {
+                    if (
+                      myOffHr.val() != field.offHr ||
+                      myOffMin.val() != field.offMin ||
+                      myDay.val() != field.day ||
+                      myMonth.val() != field.month ||
+                      myYear.val() != field.year
+                    ) {
+                      myAddAlarm.css({ color: "#ae1100" }).attr("isok", "1");
+                      return;
+                    }
+                  }
+                }
+              }
+              if (myOnHr.val() != "" && isNaN(myOnHr.val()) == false) {
+                // if on hr is not empty and valid number
+                if (myOffHr.val() == "" || isNaN(myOffHr.val()) == true) {
+                  if (
+                    myOffHr.val() != field.offHr ||
+                    myOnHr.val() != field.onHr ||
+                    myOnMin.val() != field.onMin
+                  ) {
+                    myAddAlarm.css({ color: "#ae1100" }).attr("isok", "1");
+                    return;
+                  }
+                }
+              }
+              if (myOffHr.val() != "" && isNaN(myOffHr.val()) == false) {
+                // if off hr is not empty and valid number
+                if (myOnHr.val() == "" || isNaN(myOnHr.val()) == true) {
                   if (
                     myOnHr.val() != field.onHr ||
-                    myOnMin.val() != field.onMin ||
                     myOffHr.val() != field.offHr ||
                     myOffMin.val() != field.offMin
                   ) {
                     myAddAlarm.css({ color: "#ae1100" }).attr("isok", "1");
                     return;
-                  } else {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
                   }
                 }
-
-                //when once card is edited..
-                //when once card is configured to off function..
-                if (myOnHr.val() != "" && isNaN(myOnHr.val()) == false) {
-                  if (
-                    myOnHr.val() > 23 ||
-                    myOnHr.val() < 0 ||
-                    isNaN(myOnHr.val())
-                  ) {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
-                  if (
-                    myOnMin.val() == "" ||
-                    myOnMin.val() > 59 ||
-                    myOnMin.val() < 0 ||
-                    isNaN(myOnMin.val())
-                  ) {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
-
-                  if (myDay.val() != "") {
-                    if (
-                      myDay.val() < 1 ||
-                      myDay.val() > 31 ||
-                      isNaN(myDay.val())
-                    ) {
-                      myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                      return;
-                    }
-                  }
-
-                  if (myMonth.val() != "") {
-                    if (
-                      myMonth.val() < 1 ||
-                      myMonth.val() > 12 ||
-                      isNaN(myMonth.val())
-                    ) {
-                      myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                      return;
-                    }
-                  }
-
-                  if (myYear.val() != "") {
-                    if (
-                      myYear.val() < timeForClone.getFullYear() ||
-                      myYear.val() > 2060 ||
-                      isNaN(myYear.val()) ||
-                      myYear.val().length != 4
-                    ) {
-                      myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                      return;
-                    }
-                  }
-
-                  if (
-                    myOnHr.val() != field.onHr ||
-                    myOnMin.val() != field.onMin ||
-                    myDay.val() != field.day ||
-                    myMonth.val() != field.month ||
-                    myYear.val() != field.year
-                  ) {
-                    myAddAlarm.css({ color: "#ae1100" }).attr("isok", "1");
-                    return;
-                  } else {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
-                }
-
-                //When once card is configured to OFF function
-                if (myOffHr.val != "" && isNaN(myOffHr.val()) == false) {
-                  if (
-                    myOffHr.val() > 23 ||
-                    myOffHr.val() < 0 ||
-                    isNaN(myOffHr.val())
-                  ) {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
-
-                  if (
-                    myOffMin.val() == "" ||
-                    myOffMin.val() > 59 ||
-                    myOffMin.val() < 0 ||
-                    isNaN(myOffMin.val())
-                  ) {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
-
-                  if (myDay.val() != "") {
-                    if (
-                      myDay.val() < 1 ||
-                      myDay.val() > 31 ||
-                      isNaN(myDay.val())
-                    ) {
-                      myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                      return;
-                    }
-                  }
-
-                  if (myMonth.val() != "") {
-                    if (
-                      myMonth.val() < 1 ||
-                      myMonth.val() > 12 ||
-                      isNaN(myMonth.val())
-                    ) {
-                      myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                      return;
-                    }
-                  }
-
-                  if (myYear.val() != "") {
-                    if (
-                      myYear.val() < timeForClone.getFullYear() ||
-                      myYear.val() > 2060 ||
-                      isNaN(myYear.val()) ||
-                      myYear.val().length != 4
-                    ) {
-                      myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                      return;
-                    }
-                  }
-
-                  if (
-                    myOffHr.val() != field.offHr ||
-                    myOffMin.val() != field.offMin ||
-                    myDay.val() != field.day ||
-                    myMonth.val() != field.month ||
-                    myYear.val() != field.year
-                  ) {
-                    myAddAlarm.css({ color: "#ae1100" }).attr("isok", "1");
-                    return;
-                  } else {
-                    myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
-                    return;
-                  }
+              }
+              if (
+                myOnHr.val() != "" &&
+                isNaN(myOnHr.val()) == false &&
+                myOffHr.val() != "" &&
+                isNaN(myOffHr.val()) == false
+              ) {
+                if (
+                  myOnHr.val() != field.onHr ||
+                  myOnMin.val() != field.onMin ||
+                  myOffHr.val() != field.offHr ||
+                  myOffMin.val() != field.offMin
+                ) {
+                  myAddAlarm.css({ color: "#ae1100" }).attr("isok", "1");
+                  return;
                 }
               }
               myAddAlarm.css({ color: "#babecc" }).attr("isok", "0");
@@ -1244,13 +1224,6 @@
                 once.css("background-color", "hsla(64, 97%, 62%, 0.4)");
                 myDate.slideDown(150);
                 once.attr("isonce", "1");
-                // if (field.oneShot == 2) {
-                //   if (myOnHr.val() != 0 || myOffHr.val != 0) {
-                //     myAddAlarm.css({
-                //       color: "#ae1100",
-                //     });
-                //   }
-                // }
                 myClon.find(".unit").not(".special").hide();
                 myShowOnceInfo.fadeIn(150);
                 return;
@@ -1271,8 +1244,10 @@
 
             // handling when successful request for alarm editing made
 
+            let myAlarmInfoNoSelect = setTimeout(() => {}, 0);
             myAddAlarm.hover(
               function () {
+                clearTimeout(myAlarmInfoNoSelect);
                 if (
                   selectAppliance.children("option:selected").val() == "option"
                 ) {
@@ -1284,9 +1259,9 @@
                   myAllErr.slideDown(150);
                   return;
                 }
-                if ($(this).attr("isok") == 1) {
+                if (myAddAlarm.attr("isok") == 1) {
                   if (myEnable.attr("isenable") != field.enable) {
-                    $(this).css({
+                    myAddAlarm.css({
                       "background-color": "green",
                       color: "white",
                     });
@@ -1294,43 +1269,47 @@
                   }
 
                   if (myDel.attr("isdel") == 1) {
-                    $(this).css({
+                    myAddAlarm.css({
                       "background-color": "#ae1100",
                       color: "white",
                     });
                     return;
                   }
 
-                  $(this).css({
+                  myAddAlarm.css({
                     "background-color": "#ae1100",
                     color: "white",
                   });
                 }
               },
               function () {
-                myAllErr.slideUp(150);
-                if ($(this).attr("isok") == 1) {
+                // Setting time out to hide the info for not selecting the select applinace
+                myAlarmInfoNoSelect = setTimeout(
+                  () => myAllErr.slideUp(150),
+                  3000
+                );
+                if (myAddAlarm.attr("isok") == 1) {
                   if (once.attr("isonce") == 1) {
                   }
                   if (once.attr("isonce") == 0) {
                   }
 
                   if (myEnable.attr("isenable") != field.enable) {
-                    $(this).css({
+                    myAddAlarm.css({
                       "background-color": "#ebecf0",
                       color: "green",
                     });
                     return;
                   }
 
-                  $(this).css({
+                  myAddAlarm.css({
                     "background-color": "#ebecf0",
                     color: "#ae1100",
                   });
                   return;
                 }
 
-                $(this).css({
+                myAddAlarm.css({
                   "background-color": "#ebecf0",
                   color: "#babecc",
                 });
@@ -1338,118 +1317,127 @@
             );
 
             //When add alarm button is clicked..
+            // =================================================================
             myAddAlarm.click(function () {
-              if (
-                myDel.attr("isdel") == 1 ||
-                myEnable.attr("isenable") != field.enable ||
-                $(this).attr("isok") == 1
-              ) {
-                let setTheAlarm;
-
+              // If isok is 1 then proceed in..
+              if (myAddAlarm.attr("isok") == 1) {
+                let setTheAlarm = "";
+                // If delete button is selected then..
                 if (myDel.attr("isdel") == 1) {
                   setTheAlarm = "?del=1&aID=" + i.substr(5);
                 } else if (myEnable.attr("isenable") != field.enable) {
+                  // If enable button is toggled then..
                   setTheAlarm =
                     "?enable=" +
                     myEnable.attr("isenable") +
                     "&aID=" +
                     i.substr(5);
-                } else if ($(this).attr("isok") == 1) {
+                } else {
+                  // If no appliance is selected then..
                   if (
                     selectAppliance.children("option:selected").val() ==
                     "option"
                   ) {
                     return;
+                    console.log("select any appliance!!");
                   }
-                  if (once.attr("isonce") == 1) {
-                    if (myOffHr.val() != "" && isNaN(myOffHr.val()) == false) {
-                      setTheAlarm = "?shot=0";
-                    }
-                    if (myOnHr.val() != "" && isNaN(myOnHr.val()) == false) {
-                      setTheAlarm = "?shot=1";
-                    }
 
-                    setTheAlarm +=
-                      "&onHr=" +
-                      myOnHr.val() +
-                      "&onMin=" +
-                      myOnMin.val() +
-                      "&offHr=" +
-                      myOffHr.val() +
-                      "&offMin=" +
-                      myOffMin.val() +
-                      "&pin=" +
-                      selectAppliance.children("option:selected").val() +
-                      "&sun=" +
-                      mySun.attr("ison") +
-                      "&mon=" +
-                      myMon.attr("ison") +
-                      "&tue=" +
-                      myTue.attr("ison") +
-                      "&wed=" +
-                      myWed.attr("ison") +
-                      "&thu=" +
-                      myThu.attr("ison") +
-                      "&fri=" +
-                      myFri.attr("ison") +
-                      "&sat=" +
-                      mySat.attr("ison") +
-                      "&aID=" +
-                      i.substr(5) +
-                      "&day=" +
-                      myDay.val() +
-                      "&month=" +
-                      myMonth.val() +
-                      "&year=" +
-                      myYear.val() +
-                      "&enable=" +
-                      myEnable.attr("isenable");
-                  } else {
-                    setTheAlarm =
-                      "?shot=2" +
-                      "&onHr=" +
-                      myOnHr.val() +
-                      "&onMin=" +
-                      myOnMin.val() +
-                      "&offHr=" +
-                      myOffHr.val() +
-                      "&offMin=" +
-                      myOffMin.val() +
-                      "&pin=" +
-                      selectAppliance.children("option:selected").val() +
-                      "&sun=" +
-                      mySun.attr("ison") +
-                      "&mon=" +
-                      myMon.attr("ison") +
-                      "&tue=" +
-                      myTue.attr("ison") +
-                      "&wed=" +
-                      myWed.attr("ison") +
-                      "&thu=" +
-                      myThu.attr("ison") +
-                      "&fri=" +
-                      myFri.attr("ison") +
-                      "&sat=" +
-                      mySat.attr("ison") +
-                      "&aID=" +
-                      i.substr(5) +
-                      "&enable=" +
-                      myEnable.attr("isenable");
+                  let myShotSelect = 2;
+
+                  // if isonce is 1 then..
+                  if (once.attr("isonce") == 1) {
+                    if (myOffHr.val() != "") {
+                      myShotSelect = 0;
+                    }
+                    if (myOnHr.val() != "") {
+                      myShotSelect = 1;
+                    }
+                  } else if (
+                    myOnHr.val() != "" &&
+                    (myOffHr.val() == "" || isNaN(myOffHr.val()))
+                  ) {
+                    // if only on hr is filled ..
+
+                    myShotSelect = 4;
+                  } else if (
+                    (myOnHr.val() == "" || isNaN(myOnHr.val())) &&
+                    myOffHr.val() != ""
+                  ) {
+                    // if only off hr is filled..
+
+                    myShotSelect = 3;
+                  } else if (myOnHr.val() != "" && myOffHr.val() != "") {
+                    // if both on and off hr is filled...
+
+                    myShotSelect = 2;
                   }
+
+                  let newOnHr, newOffHr, newOnMin, newOffMin;
+                  isNaN(myOnHr.val())
+                    ? (newOnHr = 0)
+                    : (newOnHr = myOnHr.val());
+
+                  isNaN(myOffHr.val())
+                    ? (newOffHr = 0)
+                    : (newOffHr = myOffHr.val());
+
+                  isNaN(myOnMin.val())
+                    ? (newOnMin = 0)
+                    : (newOnMin = myOnMin.val());
+
+                  isNaN(myOffMin.val())
+                    ? (newOffMin = 0)
+                    : (newOffMin = myOffMin.val());
+
+                  // My query string to set or edit the  alarm..
+                  setTheAlarm =
+                    "?shot=" +
+                    myShotSelect +
+                    "&enable=1" +
+                    "&onHr=" +
+                    newOnHr +
+                    "&onMin=" +
+                    newOnMin +
+                    "&offHr=" +
+                    newOffHr +
+                    "&offMin=" +
+                    newOffMin +
+                    "&pin=" +
+                    selectAppliance.children("option:selected").val() +
+                    "&sun=" +
+                    mySun.attr("ison") +
+                    "&mon=" +
+                    myMon.attr("ison") +
+                    "&tue=" +
+                    myTue.attr("ison") +
+                    "&wed=" +
+                    myWed.attr("ison") +
+                    "&thu=" +
+                    myThu.attr("ison") +
+                    "&fri=" +
+                    myFri.attr("ison") +
+                    "&sat=" +
+                    mySat.attr("ison") +
+                    "&aID=" +
+                    i.substr(5) +
+                    "&day=" +
+                    myDay.val() +
+                    "&month=" +
+                    myMonth.val() +
+                    "&year=" +
+                    myYear.val();
                 }
 
+                // Sending the get request to the server to edit the current alarm...
                 console.log(setTheAlarm);
-                $.get(
-                  "http://192.168.6.155/setalarm" + setTheAlarm,
-                  function () {
-                    setTimeout(() => window.location.reload(), 1000);
-                  }
-                );
+                $.get("/setalarm" + setTheAlarm, function () {
+                  setTimeout(() => window.location.reload(), 1000);
+                });
               }
             });
 
             // Finally add the cloned form befor the original one..
-            $("#mainBody").before(myClon);
+            $("#demoAlarm").before(myClon);
 
             // Conditonal toggling of the alarm cards
             if (field.oneShot == 0) {
@@ -1503,30 +1491,50 @@
                   " and will be disabled after execution."
               );
             }
+            if (field.oneShot == 3) {
+              myOnHr.val("----");
+              myOnMin.val("----");
+              myOffHr.val(field.offHr);
+              myOffMin.val(field.offMin);
+              myManifest.text(
+                "This alarm will switch OFF " +
+                  appliances[
+                    selectAppliance.children("option:selected").val()
+                  ] +
+                  " at " +
+                  field.offHr +
+                  ":" +
+                  field.offMin +
+                  " on every selected day until disabled."
+              );
+            }
+            if (field.oneShot == 4) {
+              myOnHr.val(field.onHr);
+              myOnMin.val(field.onMin);
+              myOffHr.val("----");
+              myOffMin.val("----");
+              myManifest.text(
+                "This alarm will switch ON " +
+                  appliances[
+                    selectAppliance.children("option:selected").val()
+                  ] +
+                  " at " +
+                  field.onHr +
+                  ":" +
+                  field.onMin +
+                  " on every selected day until disabled."
+              );
+            }
           }
         });
-        //========== Get request end ====================================
-
-        $(".unit")
-          .not(".special")
-          .click(function () {
-            if ($(this).css("background-color") != "rgb(235, 236, 240)") {
-              $(this).css({ "background-color": "rgb(235, 236, 240)" });
-              $(this).attr("ison", "0");
-            } else {
-              $(this).css({ "background-color": "rgba(181, 219, 251, 0.4)" });
-              $(this).attr("ison", "1");
-            }
-          });
-
+        // Adding and element to show the system time to user..
         let myShowTime = $("<h2></h2>");
         myShowTime
           .attr({ id: "showTheTime" })
           .css({ color: "#d1ce0d", "text-align": "center" });
         $("#addAlarm0").before(myShowTime);
       });
-
-      // ========================================
     });
   </script>
+  <script src="/jquery.js?menu"></script>
 </html>

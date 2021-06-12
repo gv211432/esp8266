@@ -54,6 +54,7 @@ public:
     //Keeps the state of the changing pins
     //[first: PinNumber] [second: PinState]->0:Low 1:High
     String pinStatKeep(int, int);
+    String pinStatKeepRemove(int);
 
     //toggles the given pin after validating the active and pin type must be OUTPUT friendly..
     int toggleThePin(int, int);
@@ -165,6 +166,7 @@ String PinCtrl::bossPin()
 // ----------------------------------------------
 void PinCtrl::pinPowerTracker()
 {
+
     Serial.println("Pin power is initiated....");
     for (size_t i = 0; i < 30; i++)
     {
@@ -181,13 +183,26 @@ void PinCtrl::pinPowerTracker()
         __pinPowerMatrix[__pinShowArr[i]] = digitalRead(__pinShowArr[i]);
     }
 
-    String myString = "";
-    for (size_t i = 0; i < 30; i++)
+    // String myString = "";
+    // for (size_t i = 0; i < 30; i++)
+    // {
+    //     String data = " " + String(__pinPowerMatrix[i]);
+    //     myString.concat(data);
+    // }
+
+    DynamicJsonDocument docOrg(512);
+    deserializeJson(docOrg, __pinStatKeep);
+    JsonArray myArray = docOrg["pinStatKeep"].as<JsonArray>();
+
+    for (JsonVariant v : myArray)
     {
-        String data = " " + String(__pinPowerMatrix[i]);
-        myString.concat(data);
+        int pinNo = v["no"];
+        __pinPowerMatrix[pinNo] = v["is"];
+        pinMode(pinNo, OUTPUT);
+        digitalWrite(pinNo, v["is"]);
     }
-    Serial.println(myString);
+
+    // Serial.println(myString);
 }
 
 // Returns the status of the pin..
@@ -295,15 +310,26 @@ String PinCtrl::pinName(int pinNo = -1, String name = "__blank__")
     {
         DynamicJsonDocument docOrg(2048);
         deserializeJson(docOrg, __pinName);
-
-        String newPinName;
         JsonArray myPinName = docOrg["pinTheme"].as<JsonArray>();
+        bool existOrNot = false;
+        for (JsonVariant v : myPinName)
+        {
+            if (v["no"] == pinNo)
+            {
+                existOrNot = true;
+                v["name"] = name;
+                break;
+            }
+        }
 
-        int myPinSize = myPinName.size();
-        myPinName[myPinSize]["no"] = pinNo;
-        myPinName[myPinSize]["name"] = name;
+        if (myPinName.size() == 0 || existOrNot == false)
+        {
+            int myPinSize = myPinName.size();
+            myPinName[myPinSize]["no"] = pinNo;
+            myPinName[myPinSize]["name"] = name;
+        }
 
-        newPinName = docOrg.as<String>();
+        String newPinName = docOrg.as<String>();
 
         writeToMemory("/pins/pinName", newPinName);
 
@@ -516,13 +542,16 @@ void PinCtrl::writeToPinShowArr()
     deserializeJson(docOrg, __pinShow);
     JsonArray myArray = docOrg["pinShow"].as<JsonArray>();
     __sizePinShowArr = myArray.size();
-    for (size_t i = 0; i < __sizePinShowArr; i++)
+    size_t i = 0;
+    for (JsonVariant v : myArray)
     {
-        __pinShowArr[i] = myArray[i];
+        __pinShowArr[i] = v;
+        i++;
     }
 }
 
 //Validates the existance of pin in the Show pin List..
+// If exsist returns 1 and not then 0..
 int PinCtrl::pinShowValidator(int pinNo = -1)
 {
     if (pinNo != -1)
@@ -578,17 +607,20 @@ String PinCtrl::pinShow(int pinNo = -1)
         JsonArray myArray = docOrg["pinShow"].as<JsonArray>();
         String newPinShow;
 
-        int myPinSize = myArray.size();
-        myArray[myPinSize] = pinNo;
+        if (pinShowValidator(pinNo) == 0)
+        {
+            int myPinSize = myArray.size();
+            myArray[myPinSize] = pinNo;
 
-        newPinShow = docOrg.as<String>();
+            newPinShow = docOrg.as<String>();
 
-        writeToMemory("/pins/pinShow", newPinShow);
+            writeToMemory("/pins/pinShow", newPinShow);
 
-        __pinShow = newPinShow;
-
-        writeToPinShowArr();
-        return newPinShow;
+            __pinShow = newPinShow;
+            toggleThePin(pinNo, 1);
+            writeToPinShowArr();
+            return newPinShow;
+        }
     }
     return __pinShow;
 }
@@ -691,16 +723,58 @@ String PinCtrl::pinStatKeep(int pinNo = -1, int state = -1)
 {
     if (pinNo != -1 && state != -1)
     {
-        zeroOneValidator(state);
         DynamicJsonDocument docOrg(512);
         deserializeJson(docOrg, __pinStatKeep);
         JsonArray myArray = docOrg["pinStatKeep"].as<JsonArray>();
-        String newPinStat;
 
-        int myPinSize = myArray.size();
-        myArray[myPinSize]["pinShow"] = pinNo;
+        int doOrNotRegister = 0;
+        for (JsonVariant v : myArray)
+        {
+            if (v["no"] == pinNo)
+            {
+                v["is"] = state;
+                break;
+            }
+            if (v["no"] != pinNo)
+            {
+                doOrNotRegister = 1;
+                break;
+            }
+        }
+        if (myArray.size() == 0 || doOrNotRegister == 1)
+        {
+            int myPinSize = myArray.size();
+            myArray[myPinSize]["no"] = pinNo;
+            myArray[myPinSize]["is"] = state;
+        }
 
-        newPinStat = docOrg.as<String>();
+        String newPinStat = docOrg.as<String>();
+
+        writeToMemory("/pins/pinStatKeep", newPinStat);
+
+        __pinStatKeep = newPinStat;
+        return newPinStat;
+    }
+    return __pinStatKeep;
+}
+
+String PinCtrl::pinStatKeepRemove(int pinNo = -1)
+{
+    if (pinNo != -1)
+    {
+        DynamicJsonDocument docOrg(512);
+        deserializeJson(docOrg, __pinStatKeep);
+        JsonArray myArray = docOrg["pinStatKeep"].as<JsonArray>();
+        size_t myPinSize = myArray.size();
+        for (size_t i = 0; i < myPinSize; i++)
+        {
+            if (myArray[i]["no"] == pinNo)
+            {
+                myArray.remove(i);
+                break;
+            }
+        }
+        String newPinStat = docOrg.as<String>();
 
         writeToMemory("/pins/pinStatKeep", newPinStat);
 
@@ -743,6 +817,7 @@ int PinCtrl::toggleThePin(int pinNo = -1, int state = -1)
                             __pinPowerMatrix[pinNo] = state;
                             __pinOnOffHour[pinNo] = hour();
                             __pinOnOffMin[pinNo] = minute();
+                            pinStatKeep(pinNo, state);
                             return 0;
                         }
                         return 1;
@@ -937,20 +1012,20 @@ PinCtrl::PinCtrl()
                 }
                 if (fName == "pinName")
                 {
-                    // __pinName = pinInfo;
-                    __pinName = "{\"pinTheme\":[]}";
+                    __pinName = pinInfo;
+                    // __pinName = "{\"pinTheme\":[]}";
                     continue;
                 }
                 if (fName == "pinRel")
                 {
-                    // __pinRel = pinInfo;
-                    __pinRel = "{\"pinRel\":[]}";
+                    __pinRel = pinInfo;
+                    // __pinRel = "{\"pinRel\":[]}";
                     continue;
                 }
                 if (fName == "pinShow")
                 {
-                    // __pinShow = pinInfo;
-                    __pinShow = "{\"pinShow\":[]}";
+                    __pinShow = pinInfo;
+                    // __pinShow = "{\"pinShow\":[]}";
                     continue;
                 }
                 if (fName == "pinStatKeep")
@@ -960,8 +1035,8 @@ PinCtrl::PinCtrl()
                 }
                 if (fName == "pinActive")
                 {
-                    // __pinActive = pinInfo;
-                    __pinActive = "{\"pinActive\":[]}";
+                    __pinActive = pinInfo;
+                    // __pinActive = "{\"pinActive\":[]}";
                     continue;
                 }
             }

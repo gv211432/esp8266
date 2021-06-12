@@ -6,7 +6,9 @@
 // ╹  ╹╹ ╹   ┗━╸┗━┛╹ ╹ ╹ ╹┗╸┗━┛┗━╸   ╹╹ ╹╹ ╹ ╹┗━╸╹┗━╸╹ ╹ ╹ ╹┗━┛╹ ╹
 // ╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸
 
-PinCtrl PinControl;
+// PinCtrl PinControl;
+
+AlarmCtrl AlarmControl;
 
 int myPinStatsTrack[10] = {};
 int myPinNo[10] = {};
@@ -26,7 +28,6 @@ void onWsConnectSend()
 
     for (size_t i = 0; i < myShowPin.size(); i++)
     {
-
         sizeMyPinStatsT = myShowPin.size();
         myPinNo[i] = myShowPin[i]["no"];
         myPinStatsTrack[i] = myShowPin[i]["is"];

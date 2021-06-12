@@ -32,17 +32,17 @@
 #include "css.h"
 #include "setTimeHtml.h"
 #include "wifiHtml.h" //wifi settings html file
-#include "alarmHomeHtml.h"
-#include "PinCtrl.h"
+#include "alarmHtml.h"
+#include <AlarmCtrl.h>
+#include <PinCtrl.h>
 #include "pinControl.h"
 #include "terminalName.h"
 #include "home.h"
 #include "showTerminal.h"
 #include "pinRelationHtml.h"
 #include "menuScript.h"
-#include "webServer.h" // webserver setup
 #include "wifiSetup.h" //wifi setup
-#include "alarms.h"    //alarm setup
+#include "webServer.h" // webserver setup
 #include "mqtt.h"
 
 // ================================= Dear SETUP functions =============================
@@ -54,13 +54,15 @@
 // ╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸
 void setup()
 {
+    // PinControl.pinShow(2);
     // This address the function which is for wifi setup
     setWifi();
     // This address the function which setup the webserver and socket
     serverSetup();
     // This address the function which reads the memory for alarm
-    alarmRecover();
+    AlarmControl.alarmRecover();
 
+    PinControl.printIt();
     // -----------------------------------------------
 }
 
@@ -77,7 +79,7 @@ void loop()
     unsigned long currentTime = millis();
     if ((currentTime - previouTime) >= eventTime)
     {
-        startAlarm();
+        AlarmControl.startAlarm();
         previouTime = currentTime;
     }
 
@@ -94,6 +96,9 @@ void loop()
 
             for (size_t i = 0; i < sizeMyPinStatsT; i++)
             {
+                // If any pin changes their previous status then only send the message..
+                // All currently active/working pin is in myPinStatsTrack array..
+                // If status changes the following loop get executed and the ifChanged is changed..
                 if (myPinStatsTrack[i] != digitalRead(myPinNo[i]))
                 {
                     ifChanged = 1;
@@ -101,6 +106,7 @@ void loop()
                 }
             }
 
+            // Once message is sent revert the ifChange status
             if (ifChanged == 1)
             {
                 String getOnOffStatus = PinControl.onOffStatusJson();

@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="http://192.168.124.155/style.css" />
-    <script src="http://192.168.124.155/jquery.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/jquery.js"></script>
     <style>
       .btn:active {
         box-shadow: inset 1px 1px 2px #babecc, inset -1px -1px 2px #fff;
@@ -16,7 +16,8 @@
     </style>
     <title>Terminal Relation</title>
   </head>
-  <body>
+  <body id="mainBody">
+    <div id="inActivator"></div>
     <div id="root">
       <center>
         <div class="card">
@@ -24,7 +25,7 @@
             Terminal Relations..
           </h1>
           <div style="width: 290px; text-align: start">
-            <ul style="font-size: 12px; font-weight: 900; padding: 0 0 30px 0">
+            <ul style="font-size: 13px; font-weight: 900; padding: 0 0 30px 0">
               <li>
                 Terminals available to use as MASTERS are
                 <span id="allMaster" style="color: #d1ce0d"></span>
@@ -41,7 +42,7 @@
                 NOTE: &#x213C; is for PULL_UP, &#x2191; is for on HIGH and
                 &#x2193; is for on LOW
               </li>
-              <li style="color: #d1ce0d" id="time">....</li>
+              <li style="color: #d1ce0d" id="showTheTime">....</li>
             </ul>
           </div>
         </div>
@@ -96,70 +97,79 @@
         </div>
       </center>
     </div>
+    <div><button id="menuBtn">&#9776;</button></div>
+    <!-- %MENU% -->
   </body>
   <script>
     $(function () {
-      $.getJSON("http://192.168.124.155/gettime", (data, status) => {
-        var myWeekDay = [
-          "omit",
-          "Sun",
-          "Mon",
-          "Tue",
-          "Wed",
-          "Thu",
-          "Fri",
-          "Sat",
-        ];
-        let myMonth = [
-          "omit",
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-        let secIncre = data.sec;
-        let minIncre = data.min;
-        setInterval(() => {
-          if (secIncre == 60) {
-            minIncre++;
-            secIncre = 0;
-          }
-          if (minIncre == 60) {
-            window.location.reload();
-          }
-          let showTime =
-            "" +
-            myWeekDay[data.wDay] +
-            " " +
-            myMonth[data.mon] +
-            " " +
-            data.day +
-            " " +
-            data.yr +
-            " " +
-            data.hr +
-            ":" +
-            minIncre +
-            ":" +
-            secIncre +
-            " (Local Time)";
-          $("#time").text(showTime);
-          secIncre++;
-        }, 1000);
-      });
-
-      $.getJSON("http://192.168.124.155/pinRelation?read", (data, status) => {
+      $.getJSON("/pinRelation?read", (data, status) => {
         if (status == "success") {
           let allBossTerminals = [];
           let allSlaveTerminals = [];
+
+          function printTerminals(element = "omit") {
+            // Writting to the Information card some inforations..
+            $.getJSON("/pinCount", (dataSec, statusSec) => {
+              if (statusSec == "success") {
+                let myTerminals = "";
+
+                dataSec.allInPin.forEach((elementSec) => {
+                  let shouldInclude = true;
+                  // Boss terminal should not be other boss terminal
+                  allBossTerminals.forEach((element) => {
+                    if (element == elementSec) {
+                      shouldInclude = false;
+                    }
+                  });
+                  // Boss termianl should not be other slave terminal..
+                  allSlaveTerminals.forEach((element) => {
+                    if (element == elementSec) {
+                      shouldInclude = false;
+                    }
+                  });
+                  // If not matched then it will be true..
+                  if (shouldInclude) {
+                    myTerminals += "P" + elementSec + ", ";
+                  }
+                });
+                if (myTerminals == "") {
+                  $("#allMaster").text(
+                    "No Terminal availabe, Please free some!!"
+                  );
+                } else {
+                  $("#allMaster").text(myTerminals);
+                }
+
+                myTerminals = "";
+                dataSec.allOutPin.forEach((elementSec) => {
+                  let shouldInclude = true;
+
+                  // Slave shouls not be boss terminal..
+                  allBossTerminals.forEach((element) => {
+                    if (element == elementSec) {
+                      shouldInclude = false;
+                    }
+                  });
+                  // If not matched then it will be true..
+                  if (shouldInclude) {
+                    myTerminals += "P" + elementSec + ", ";
+                  }
+                });
+
+                if (myTerminals == "") {
+                  $("#allSlaves").text(
+                    "No Terminal availabe, Please free some!!"
+                  );
+                } else {
+                  $("#allSlaves").text(myTerminals);
+                }
+              }
+            });
+          }
+
+          if (data.pinRel.length == 0) {
+            printTerminals();
+          }
 
           // Creating new clone card for showing up..
           data.pinRel.forEach((element) => {
@@ -208,74 +218,15 @@
 
             remove.click(function () {
               $.ajax({
-                url: `http://192.168.124.155/pinRelation?pin=${element["boss"]}`,
+                url: `/pinRelation?pin=${element["boss"]}`,
               }).done((data) => {
                 if (data == "ok") window.location.reload();
                 setTimeout(() => window.location.reload(), 2000);
               });
             });
 
-            // Writting to the Information card some inforations..
-            $.getJSON(
-              "http://192.168.124.155/pinCount",
-              (dataSec, statusSec) => {
-                if (statusSec == "success") {
-                  let myTerminals = "";
-
-                  dataSec.allInPin.forEach((elementSec) => {
-                    let shouldInclude = true;
-                    // Boss terminal should not be other boss terminal
-                    allBossTerminals.forEach((element) => {
-                      if (element == elementSec) {
-                        shouldInclude = false;
-                      }
-                    });
-                    // Boss termianl should not be other slave terminal..
-                    allSlaveTerminals.forEach((element) => {
-                      if (element == elementSec) {
-                        shouldInclude = false;
-                      }
-                    });
-                    // If not matched then it will be true..
-                    if (shouldInclude) {
-                      myTerminals += "P" + elementSec + ", ";
-                    }
-                  });
-                  if (myTerminals == "") {
-                    $("#allMaster").text(
-                      "No Terminal availabe, Please free some!!"
-                    );
-                  } else {
-                    $("#allMaster").text(myTerminals);
-                  }
-
-                  myTerminals = "";
-                  dataSec.allOutPin.forEach((elementSec) => {
-                    let shouldInclude = true;
-
-                    // Slave shouls not be boss terminal..
-                    allBossTerminals.forEach((element) => {
-                      if (element == elementSec) {
-                        shouldInclude = false;
-                      }
-                    });
-                    // If not matched then it will be true..
-                    if (shouldInclude) {
-                      myTerminals += "P" + elementSec + ", ";
-                    }
-                  });
-
-                  if (myTerminals == "") {
-                    $("#allSlaves").text(
-                      "No Terminal availabe, Please free some!!"
-                    );
-                  } else {
-                    $("#allSlaves").text(myTerminals);
-                  }
-                }
-              }
-            );
-
+            // Print the terminals to the screen in information card
+            printTerminals(element);
             // Inserting the clone into the webpage.
             $("#demoElement").after(myClone);
           });
@@ -376,7 +327,7 @@
         let myPayload = JSON.stringify(objToSend);
 
         $.ajax({
-          url: "http://192.168.124.155/pinRelation",
+          url: "/pinRelation",
           headers: { pinRel: myPayload },
         }).done((data) => {
           if (data == "ok") {
@@ -387,4 +338,5 @@
       });
     });
   </script>
+  <script src="/jquery.js?menu"></script>
 </html>

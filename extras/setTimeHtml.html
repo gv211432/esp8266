@@ -26,10 +26,10 @@
             <h2>Your Browser's time</h2>
             <h1 id="bTime">....</h1>
             <h2>Your Device's time</h2>
-            <h1 id="deviceTime">....</h1>
+            <h1 id="showTheTime" style="color: #d1ce0d">....</h1>
 
             <button class="red" id="setBtimeNow">Set Browser's time</button>
-            <h2 id="setInfo" style="color: #d1ce0d"></h2>
+            <h2 id="setInfo" style="color: green"></h2>
             <br /><br />
             <h1>OR set it maunally down here...</h1>
             <h2>You can change any number of values here.</h2>
@@ -91,69 +91,10 @@
   </body>
   <script>
     $(function () {
-      let dTime = $("#deviceTime");
       let setInfo = $("#setInfo");
       setInfo.hide();
       let dw = $("#dateWarn");
       dw.hide();
-
-      $.getJSON("/gettime", (data, status) => {
-        var myWeekDay = [
-          "omit",
-          "Sun",
-          "Mon",
-          "Tue",
-          "Wed",
-          "Thu",
-          "Fri",
-          "Sat",
-        ];
-        let myMonth = [
-          "omit",
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-        let secIncre = data.sec;
-        let minIncre = data.min;
-
-        setInterval(() => {
-          if (secIncre == 60) {
-            minIncre++;
-            secIncre = 0;
-          }
-          if (minIncre == 60) {
-            window.location.reload();
-          }
-          let showTime =
-            "" +
-            myWeekDay[data.wDay] +
-            " " +
-            myMonth[data.mon] +
-            " " +
-            data.day +
-            " " +
-            data.yr +
-            " " +
-            data.hr +
-            ":" +
-            minIncre +
-            ":" +
-            secIncre +
-            " (Local Time)";
-          dTime.text(showTime);
-          secIncre++;
-        }, 1000);
-      });
 
       let bTime = $("#bTime");
       setInterval(() => {
