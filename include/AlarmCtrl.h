@@ -1,9 +1,6 @@
 #ifndef AlarmCtrl_h
 #define AlarmCtrl_h
 
-#include "PinCtrl.h"
-PinCtrl PinControl;
-
 // ================================AlarmLOOP functions ================================
 // ====================================================================================
 // Following function repetes all the alarms arrays..

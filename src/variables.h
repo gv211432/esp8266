@@ -5,21 +5,6 @@
 // ╹ ╹┗━╸┗━╸   ┗┛ ╹ ╹╹┗╸╹╹ ╹┗━┛┗━╸┗━╸┗━┛
 // ╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸
 
-// All variabes for wifi
-// ----------------------------------------------
-const String s = "";
-String ssid;
-// String *ptrssid = &ssid;
-String ssidpw;
-// String *ptrssidpw = &ssidpw;
-String ap;
-// String *ptrap = &ap;
-String appw;
-// String *ptrappw = &appw;
-String lock;
-// String *ptrlock;
-String user;
-
 // This must be used before making an array to pass in the function of
 const int demoAlarm[18] = {0, 0, 50, 25, 61, 25, 61, 0, 0, 0, 0, 0, 0, 0, 2, 32, 13, 0};
 
@@ -47,7 +32,7 @@ String processor(const String &var)
     String s = "";
     if (var == "OBJ")
     {
-        String myObj = s + "{wifi:\"" + ssid + "\",wifipw:\"" + ssidpw + "\",ap:\"" + ap + "\",appw:\"" + appw + "\",lock:\"" + lock + "\",user:\"" + user + "\"}";
+        String myObj = WifiControl.getWifiInfoJson();
         return myObj;
     }
     if (var == "MENU")
@@ -57,14 +42,89 @@ String processor(const String &var)
     return s;
 }
 
-String sendTime()
-{
-    String thisTime = s + "{ \"hr\" : \"" + hour() + "\", \"min\" : \"" + minute() + "\", \"sec\" : \"" + second() + "\", \"wDay\" : \"" + weekday() + "\", \"day\" : \"" + day() + "\", \"mon\" : \"" + month() + "\", \"yr\" : \"" + year() + "\"}";
-    return thisTime;
-}
-
 void onNotFound(AsyncWebServerRequest *request)
 {
     //Handle Unknown Request
     request->redirect("/");
+}
+
+void mqttCallback(const char *topic, byte *payload, unsigned int length)
+{
+
+    String theRecievedData;
+    for (size_t i = 0; i < length; i++)
+    {
+        theRecievedData.concat((char)payload[i]);
+    }
+    Serial.println(theRecievedData);
+
+    DynamicJsonDocument docs(1024);
+    deserializeJson(docs, theRecievedData);
+    JsonArray myData = docs["data"].as<JsonArray>();
+    Serial.println(docs.as<String>());
+
+    String toHandler = docs["to"];
+    Serial.println(toHandler);
+    if (toHandler == "btnSwitch")
+    {
+        for (JsonVariant v : myData)
+        {
+            int pin = v["no"];
+            int to = v["is"];
+
+            Serial.println(pin);
+            Serial1.println(to);
+            if (PinControl.pinShowValidator(pin) == 1)
+            {
+                PinControl.toggleThePin(pin, to);
+                // No need to send the result or response
+                // This will be automatically done by othe function listning for changes in pins states..
+            }
+        }
+        return;
+    }
+
+    if (toHandler == "setTime")
+    {
+        for (JsonVariant v : myData)
+        {
+            int s = v["s"];
+            int h = v["h"];
+            int m = v["m"];
+            int d = v["d"];
+            int M = v["M"];
+            int y = v["y"];
+            int tSetStatus = timeWriter(s, h, m, d, M, y);
+
+            if (tSetStatus == 1)
+            {
+                String msg = "{\"status\":\"ok\"}";
+                MqttControl.publishOnMqtt("setTime", "opsStats", msg);
+            }
+        }
+        return;
+    }
+
+    if (toHandler == "getTime")
+    {
+        MqttControl.publishOnMqtt("getTime", "timeMan", sendTime());
+    }
+    if (toHandler == "wifiSet")
+    {
+    }
+    if (toHandler == "setTime")
+    {
+    }
+    if (toHandler == "setTime")
+    {
+    }
+    if (toHandler == "setTime")
+    {
+    }
+    if (toHandler == "setTime")
+    {
+    }
+    if (toHandler == "setTime")
+    {
+    }
 }

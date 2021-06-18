@@ -65,8 +65,9 @@ public:
     //This must be called in loop for toggling of linked pins to its boss pin..
     void pinRelationConvertor();
 
-    // This function gives the on and off status of the pin
-    String onOffStatusJson();
+    // This function gives the on and off status of the only changed pin if given argument is 'h'
+    // Over loading this function for full pin numbers..
+    String onOffStatusJson(char);
 
     // This function trackes the boss pins
     String bossPin();
@@ -88,7 +89,7 @@ private:
     //Not used in project.. may be used in future or eliminated.. but occurs at some places
     // int pinReLcOunter[10] = {};
     int pinReLcHecker[10] = {};
-    int pinReLslave[10][5] = {};
+    int pinReLslave[10][6] = {};
     size_t __sizeOfPinRel;
     void writingToStruct();
 
@@ -105,6 +106,7 @@ private:
     // Contains the information of pin power High or Low
     // ----------------------------------------------
     int __pinPowerMatrix[30] = {};
+    int __pinPowerMatrixHistory[30] = {};
     void pinPowerOnStart();
     // Keeps __pinPowerMatrix upto date....
     void pinPowerTracker();
@@ -171,16 +173,19 @@ void PinCtrl::pinPowerTracker()
     for (size_t i = 0; i < 30; i++)
     {
         __pinPowerMatrix[i] = -1;
+        __pinPowerMatrixHistory[i] = -1;
     }
 
     for (size_t i = 0; i < __sizePinActiveArr; i++)
     {
         __pinPowerMatrix[__pinActiveArr[i]] = digitalRead(__pinActiveArr[i]);
+        __pinPowerMatrixHistory[__pinActiveArr[i]] = digitalRead(__pinActiveArr[i]);
     }
 
     for (size_t i = 0; i < __sizePinShowArr; i++)
     {
         __pinPowerMatrix[__pinShowArr[i]] = digitalRead(__pinShowArr[i]);
+        __pinPowerMatrixHistory[__pinShowArr[i]] = digitalRead(__pinShowArr[i]);
     }
 
     // String myString = "";
@@ -198,6 +203,7 @@ void PinCtrl::pinPowerTracker()
     {
         int pinNo = v["no"];
         __pinPowerMatrix[pinNo] = v["is"];
+        __pinPowerMatrixHistory[pinNo] = v["is"];
         pinMode(pinNo, OUTPUT);
         digitalWrite(pinNo, v["is"]);
     }
@@ -843,7 +849,7 @@ void PinCtrl::pinRelationConvertor()
             {
                 // Serial.println("entered inside.... IF");
 
-                for (size_t j = 0; j <= 5; j++)
+                for (size_t j = 0; j < 6; j++)
                 {
                     if (pinReLslave[i][j] != -1)
                     {
@@ -946,19 +952,40 @@ void PinCtrl::pinRelationConvertor()
     }
 }
 
-String PinCtrl::onOffStatusJson()
+String PinCtrl::onOffStatusJson(char isHalf = 'n')
 {
     String forReturn = "";
     DynamicJsonDocument docOrg2(512);
-    // deserializeJson(docOrg2, __pinShow);
     JsonArray myShowPin = docOrg2["pinOnOff"].to<JsonArray>();
+
+    size_t myJ = 0;
     for (size_t i = 0; i < __sizePinShowArr; i++)
     {
-        myShowPin[i]["no"] = __pinShowArr[i];
-        myShowPin[i]["is"] = __pinPowerMatrix[__pinShowArr[i]];
-        myShowPin[i]["hr"] = __pinOnOffHour[__pinShowArr[i]];
-        myShowPin[i]["min"] = __pinOnOffMin[__pinShowArr[i]];
+        if (isHalf == 'h')
+        {
+            if (digitalRead(__pinShowArr[i]) == __pinPowerMatrixHistory[__pinShowArr[i]])
+            {
+                continue;
+            }
+            else
+            {
+                __pinPowerMatrixHistory[__pinShowArr[i]] = digitalRead(__pinShowArr[i]);
+                myShowPin[myJ]["no"] = __pinShowArr[i];
+                myShowPin[myJ]["is"] = __pinPowerMatrix[__pinShowArr[i]];
+                myShowPin[myJ]["hr"] = __pinOnOffHour[__pinShowArr[i]];
+                myShowPin[myJ]["min"] = __pinOnOffMin[__pinShowArr[i]];
+                myJ++;
+            }
+        }
+        else
+        {
+            myShowPin[i]["no"] = __pinShowArr[i];
+            myShowPin[i]["is"] = __pinPowerMatrix[__pinShowArr[i]];
+            myShowPin[i]["hr"] = __pinOnOffHour[__pinShowArr[i]];
+            myShowPin[i]["min"] = __pinOnOffMin[__pinShowArr[i]];
+        }
     }
+
     forReturn = docOrg2.as<String>();
 
     return forReturn;

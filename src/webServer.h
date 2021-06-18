@@ -7,49 +7,8 @@
 // ┗━┛┗━╸╹┗╸┗┛ ┗━╸╹┗╸   ┗━┛┗━╸ ╹ ┗━┛╹
 // ╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸
 
-//This function write into the time...
-int timeWriter(int s, int h, int m, int d, int M, int y)
-{
-    //This function is independent of any arduino program, JUST #include time.h
-    if (s == -1 && h == -1 && m == -1 && d == -1 && M == -1 && y == -1)
-    {
-        return 1;
-    }
-    if (s == -1)
-    {
-        s = second();
-    }
-    if (h == -1)
-    {
-        h = hour();
-    }
-    if (m == -1)
-    {
-        m = minute();
-    }
-    if (d == -1)
-    {
-        d = day();
-    }
-    if (M == -1)
-    {
-        M = month();
-    }
-    if (y == -1)
-    {
-        y = year();
-    }
-    setTime(h, m, s, d, M, y);
-
-    const String c = "";
-    String nowTime = c + hour() + " : " + minute() + " : " + second() + " : " + weekday() + " -- " + day() + "/" + month() + "/" + year() + " ";
-    Serial.println(nowTime);
-    return 0;
-}
-
 void serverSetup()
 {
-
     // Home of this server
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               { request->send_P(200, "text/html", home, processor); });
@@ -62,6 +21,8 @@ void serverSetup()
     // ----------------------------------------------
     server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request)
               {
+                  String user = WifiControl.getTheWifiElement("user");
+                  String lock = WifiControl.getTheWifiElement("lock");
                   const char *http_username = user.c_str();
                   const char *http_password = lock.c_str();
                   if (!request->authenticate(http_username, http_password))
@@ -251,6 +212,9 @@ void serverSetup()
     // ----------------------------------------------
     server.on("/changesettings", HTTP_GET, [](AsyncWebServerRequest *request)
               {
+                  String user = WifiControl.getTheWifiElement("user");
+                  String lock = WifiControl.getTheWifiElement("lock");
+
                   const char *http_username = user.c_str();
                   const char *http_password = lock.c_str();
                   if (!request->authenticate(http_username, http_password))
@@ -274,68 +238,7 @@ void serverSetup()
 
                       request->send(200, "text/plain", "OK");
 
-                      // Mounting file system to open desired files to check
-                      // ----------------------------------------------
-                      LittleFS.begin();
-
-                      // Cross Checking the settings before writing them
-                      // ----------------------------------------------
-                      char check = 'b';
-                      if (ssid != wifiname)
-                      {
-                          File data1 = LittleFS.open("/wifi/st", "w");
-                          data1.print(wifiname);
-                          data1.close();
-                          check = 'a';
-                      }
-                      if (ssidpw != wifipass)
-                      {
-                          File data1 = LittleFS.open("/wifi/stp", "w");
-                          data1.print(wifipass);
-                          data1.close();
-                          check = 'a';
-                      }
-
-                      if (ap != hotname)
-                      {
-                          File data1 = LittleFS.open("/wifi/ap", "w");
-                          data1.print(hotname);
-                          data1.close();
-                          check = 'a';
-                      }
-                      if (appw != hotpass)
-                      {
-                          File data1 = LittleFS.open("/wifi/app", "w");
-                          data1.print(hotpass);
-                          data1.close();
-                          check = 'a';
-                      }
-                      if (lock != lockpass)
-                      {
-                          File data1 = LittleFS.open("/wifi/lock", "w");
-                          data1.print(lockpass);
-                          data1.close();
-                          check = 'a';
-                      }
-                      if (user != username)
-                      {
-                          File data1 = LittleFS.open("/wifi/user", "w");
-                          data1.print(username);
-                          data1.close();
-                          check = 'a';
-                      }
-
-                      // Unmounting the filesystem to prevent form curruption
-                      // ----------------------------------------------
-                      LittleFS.end();
-
-                      // Following code reboots the esp for conges to apply
-                      // ----------------------------------------------
-                      if (check != 'b')
-                      {
-                          delay(500);
-                          ESP.restart();
-                      }
+                      WifiControl.updateWifiSettings(wifiname, wifipass, hotname, hotpass, lockpass, username);
                   }
                   else
                   {
@@ -501,6 +404,7 @@ void serverSetup()
 
     server.on("/ip", HTTP_GET, [](AsyncWebServerRequest *request)
               {
+                  const String s = "";
                   String myJson = s + "{\"localIp\":\"" + WiFi.localIP().toString() + "\",\"apIp\":\"" + WiFi.softAPIP().toString() + "\"}";
                   AsyncWebServerResponse *response = request->beginResponse(200, "text/json", myJson);
                   response->addHeader("Access-Control-Allow-Origin", "*");
