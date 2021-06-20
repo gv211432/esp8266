@@ -55,9 +55,8 @@ MqttCtrl MqttControl;
 #include "pinRelationHtml.h"
 #include "menuScript.h"
 
-#include "webServer.h" // webserver setup
-
-bool anyoneOnWifi = false;
+#include "webServer.h"    // webserver setup
+#include "mqttCallback.h" //The handler function for the mqtt
 
 // ================================= Dear SETUP functions =============================
 // ====================================================================================
@@ -106,48 +105,48 @@ void loop()
     //Repeating for triggring the related pins if boss pin is triggered in any way..
     PinControl.pinRelationConvertor();
 
-    // If wifi is connected then only there is possibility to connect to mqtt broker and web sever....
-    if (WiFi.status() == WL_CONNECTED)
+    // Repeating the following for check if there is client on web sockets..
+    unsigned long currentTimeForPin = millis();
+    if ((currentTimeForPin - previouTimeForPin) >= eventTimeForPin)
     {
-        // Repeating the following for check if there is client on web sockets..
-        unsigned long currentTimeForPin = millis();
-        if ((currentTimeForPin - previouTimeForPin) >= eventTimeForPin)
+        if (ws.count() != 0)
         {
-            if (ws.count() != 0)
+            int ifChanged = 0;
+
+            for (size_t i = 0; i < sizeMyPinStatsT; i++)
             {
-                int ifChanged = 0;
-
-                for (size_t i = 0; i < sizeMyPinStatsT; i++)
+                // If any pin changes their previous status then only send the message..
+                // All currently active/working pin is in myPinStatsTrack array..
+                // If status changes the following loop get executed and the ifChanged is changed..
+                if (myPinStatsTrack[i] != digitalRead(myPinNo[i]))
                 {
-                    // If any pin changes their previous status then only send the message..
-                    // All currently active/working pin is in myPinStatsTrack array..
-                    // If status changes the following loop get executed and the ifChanged is changed..
-                    if (myPinStatsTrack[i] != digitalRead(myPinNo[i]))
-                    {
-                        ifChanged = 1;
-                        myPinStatsTrack[i] = digitalRead(myPinNo[i]);
-                    }
-                }
-
-                // Once message is sent revert the ifChanged status
-                if (ifChanged == 1)
-                {
-                    ifChanged = 0;
-
-                    String getOnOffStatus = PinControl.onOffStatusJson('h');
-                    ws.textAll(getOnOffStatus);
-
-                    Serial.println(client.connected());
-                    MqttControl.publishOnMqtt("loop", "stateCheck", getOnOffStatus);
+                    ifChanged = 1;
+                    myPinStatsTrack[i] = digitalRead(myPinNo[i]);
                 }
             }
 
-            // For cleaning the clients on web sockets after connection is closed..
-            ws.cleanupClients(4);
+            // Once message is sent revert the ifChanged status
+            if (ifChanged == 1)
+            {
+                ifChanged = 0;
 
-            previouTimeForPin = currentTimeForPin;
+                String getOnOffStatus = PinControl.onOffStatusJson('h');
+                ws.textAll(getOnOffStatus);
+
+                Serial.println(client.connected());
+                MqttControl.publishOnMqtt("loop", "stateCheck", getOnOffStatus);
+            }
         }
 
+        // For cleaning the clients on web sockets after connection is closed..
+        ws.cleanupClients(4);
+
+        previouTimeForPin = currentTimeForPin;
+    }
+
+    // If wifi is connected then only there is possibility to connect to mqtt broker and web sever....
+    if (WiFi.status() == WL_CONNECTED)
+    {
         // Function is to be repeated to connect to the broker..
         MqttControl.mqttReconnect();
         // Function to be repeated for listning on the mqtt topic..

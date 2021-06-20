@@ -15,26 +15,102 @@ public:
     void setWifi();
     void updateWifiSettings(String, String, String, String, String, String);
     // Returns the information of wifi in json format..
+    String getWifiInfo();
     String getWifiInfoJson();
     // Returns the perticular given variable...
     String getTheWifiElement(String);
+    int stringStrengthCheck(String &);
+    void changeConnectionMode(String);
 
 private:
     // All variabes for wifi
     // ----------------------------------------------
     const String s = "";
     String ssid;
-    // String *ptrssid = &ssid;
     String ssidpw;
-    // String *ptrssidpw = &ssidpw;
     String ap;
-    // String *ptrap = &ap;
     String appw;
-    // String *ptrappw = &appw;
     String lock;
-    // String *ptrlock;
     String user;
+    String __mode;
 };
+
+// Returns the strongness of the string
+// 0 = ultra strong, 1 = very strong, 2 = moderate, 3 = Low, 4 = Pass Failed
+int WifiCtrl::stringStrengthCheck(String &input)
+{
+    size_t inputSize = input.length();
+    if (inputSize < 6)
+    {
+        return 4;
+    }
+
+    // If size is considerabel then proceed
+    bool isLower = false;
+    bool isUpper = false;
+    bool isDigit = false;
+    bool isSpecial = false;
+
+    for (size_t i = 0; i < inputSize; i++)
+    {
+        if (islower(input[i]))
+        {
+            isLower = true;
+        }
+        if (isupper(input[i]))
+        {
+            isUpper = true;
+        }
+        if (isdigit(input[i]))
+        {
+            isDigit = true;
+        }
+        if (input[i] ==
+                '@' ||
+            input[i] ==
+                '#' ||
+            input[i] ==
+                '&' ||
+            input[i] ==
+                '%' ||
+            input[i] ==
+                '$' ||
+            input[i] ==
+                '!')
+        {
+            isSpecial = true;
+        }
+        if (input[i] == ' ')
+        {
+            return 4;
+        }
+    }
+    if (isLower && isUpper && isDigit && isSpecial)
+    {
+        if (inputSize > 14)
+        {
+            // Ok for Access Point password and user password
+            return 0;
+        }
+        if (inputSize > 9)
+        {
+            // Ok for Access Point password and user password
+            return 1;
+        }
+        return 2;
+    }
+    if ((isLower && isSpecial) || (isUpper && isSpecial) || (isLower && isUpper))
+    {
+        if (inputSize > 16)
+        {
+            // Ok for Access Point password and user password
+            return 2;
+        }
+        // Ok for the wifi name and user name
+        return 3;
+    }
+    return 4;
+}
 
 // Reads the flash memory for the credentials and bring into the ram...
 void WifiCtrl::setWifi()
@@ -43,71 +119,64 @@ void WifiCtrl::setWifi()
     // ----------------------------------------------
     LittleFS.begin();
 
-    // -----------------------------------------------
-    File data1 = LittleFS.open("/wifi/st", "r");
-    String getssid;
-    while (data1.available())
-    {
-        char a = data1.read();
-        getssid.concat(a);
-    }
-    data1.close();
-    ssid = getssid;
+    // Open the directory..
+    Dir dir = LittleFS.openDir("/wifi");
 
-    // -----------------------------------------------
-    File data2 = LittleFS.open("/wifi/stp", "r");
-    String getssidpw;
-    while (data2.available())
+    // Loop through all single files in the directory..
+    while (dir.next())
     {
-        char a = data2.read();
-        getssidpw.concat(a);
-    }
-    data2.close();
-    ssidpw = getssidpw;
+        String fName = dir.fileName(); // names like pinData, pinName, pinRel, pinShow, ..
+        if (dir.fileSize())
+        {
+            File f = dir.openFile("r");
+            String wifiInfo; //creating temperory string ...
+            // loop through all the single character in the current file..
+            while (f.available())
+            {
+                char alp = f.read();
+                wifiInfo.concat(alp);
+            }
+            f.close();
 
-    // ----------------------------------------------
-    File data3 = LittleFS.open("/wifi/ap", "r");
-    String getap;
-    while (data3.available())
-    {
-        char a = data3.read();
-        getap.concat(a);
+            //conditionally copying to varalbles..
+            // -----------------------------------------------
+            if (fName == "ap")
+            {
+                ap = wifiInfo;
+                continue;
+            }
+            if (fName == "app")
+            {
+                appw = wifiInfo;
+                continue;
+            }
+            if (fName == "st")
+            {
+                ssid = wifiInfo;
+                continue;
+            }
+            if (fName == "stp")
+            {
+                ssidpw = wifiInfo;
+                continue;
+            }
+            if (fName == "lock")
+            {
+                lock = wifiInfo;
+                continue;
+            }
+            if (fName == "user")
+            {
+                user = wifiInfo;
+                continue;
+            }
+            if (fName == "mode")
+            {
+                __mode = wifiInfo;
+                continue;
+            }
+        }
     }
-    data3.close();
-    ap = getap;
-
-    // -----------------------------------------------
-    File data4 = LittleFS.open("/wifi/app", "r");
-    String getappw;
-    while (data4.available())
-    {
-        char a = data4.read();
-        getappw.concat(a);
-    }
-    data4.close();
-    appw = getappw;
-
-    // -----------------------------------------------
-    File data5 = LittleFS.open("/wifi/lock", "r");
-    String getlock;
-    while (data5.available())
-    {
-        char a = data5.read();
-        getlock.concat(a);
-    }
-    data5.close();
-    lock = getlock;
-
-    // -----------------------------------------------
-    File data6 = LittleFS.open("/wifi/user", "r");
-    String getuser;
-    while (data6.available())
-    {
-        char a = data6.read();
-        getuser.concat(a);
-    }
-    data6.close();
-    user = getuser;
 
     // Unmounting file system
     // ----------------------------------------------
@@ -120,6 +189,26 @@ void WifiCtrl::setWifi()
     Serial.println(myObj);
 
     // Wifi Connection settings
+    // -----------------------------------------------
+    if (__mode.toInt() == 1)
+    {
+        // Start only the (STATION MODE) connect others wifi...
+        WiFi.mode(WIFI_STA);
+        if (WiFi.status() != WL_CONNECTED)
+        {
+            WiFi.begin(ssid, ssidpw);
+        }
+        return;
+    }
+    if (__mode.toInt() == 0)
+    {
+        // Start only the access point (THE HOTSPOT)
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP(ap, appw);
+        return;
+    }
+
+    // If no mode is defined start the both one!!
     // -----------------------------------------------
     WiFi.mode(WIFI_AP_STA);
     if (WiFi.status() != WL_CONNECTED)
@@ -137,49 +226,53 @@ void WifiCtrl::updateWifiSettings(String wifiname, String wifipass, String hotna
 
     // Cross Checking the settings before writing them
     // ----------------------------------------------
-    char check = 'b';
-    if (ssid != wifiname)
+    bool check = false;
+    if (ssid != wifiname && wifiname != "void" && wifiname != 0 && wifiname != " ")
     {
-        File data1 = LittleFS.open("/wifi/st", "w");
-        data1.print(wifiname);
-        data1.close();
-        check = 'a';
+        writeToMemory("/wifi/st", wifiname);
+        check = true;
     }
-    if (ssidpw != wifipass)
+    if (ssidpw != wifipass && wifipass != "void" && wifipass != 0 && wifipass != " ")
     {
-        File data1 = LittleFS.open("/wifi/stp", "w");
-        data1.print(wifipass);
-        data1.close();
-        check = 'a';
+        writeToMemory("/wifi/stp", wifipass);
+        check = true;
     }
 
     if (ap != hotname)
     {
-        File data1 = LittleFS.open("/wifi/ap", "w");
-        data1.print(hotname);
-        data1.close();
-        check = 'a';
+        int gotCheck = stringStrengthCheck(hotname);
+        if (gotCheck <= 3)
+        {
+            writeToMemory("/wifi/ap", hotname);
+            check = true;
+        }
     }
     if (appw != hotpass)
     {
-        File data1 = LittleFS.open("/wifi/app", "w");
-        data1.print(hotpass);
-        data1.close();
-        check = 'a';
+        int gotCheck = stringStrengthCheck(hotpass);
+        if (gotCheck <= 1)
+        {
+            writeToMemory("/wifi/app", hotpass);
+            check = true;
+        }
     }
     if (lock != lockpass)
     {
-        File data1 = LittleFS.open("/wifi/lock", "w");
-        data1.print(lockpass);
-        data1.close();
-        check = 'a';
+        int gotCheck = stringStrengthCheck(lockpass);
+        if (gotCheck <= 1)
+        {
+            writeToMemory("/wifi/lock", lockpass);
+            lock = lockpass;
+        }
     }
     if (user != username)
     {
-        File data1 = LittleFS.open("/wifi/user", "w");
-        data1.print(username);
-        data1.close();
-        check = 'a';
+        int gotCheck = stringStrengthCheck(username);
+        if (gotCheck <= 2)
+        {
+            writeToMemory("/wifi/user", username);
+            user = username;
+        }
     }
 
     // Unmounting the filesystem to prevent form curruption
@@ -188,17 +281,23 @@ void WifiCtrl::updateWifiSettings(String wifiname, String wifipass, String hotna
 
     // Following code reboots the esp for conges to apply
     // ----------------------------------------------
-    if (check != 'b')
+    if (check)
     {
         delay(500);
         ESP.restart();
     }
 }
 
+// Returns the javascript object format wifi information to the caller..
+String WifiCtrl::getWifiInfo()
+{
+    String myObj = s + "{wifi:\"" + ssid + "\",wifipw:\"" + ssidpw + "\",ap:\"" + ap + "\",appw:\"" + appw + "\",lock:\"" + lock + "\",user:\"" + user + "\"}";
+    return myObj;
+}
 // Returns the json format wifi information to the caller..
 String WifiCtrl::getWifiInfoJson()
 {
-    String myObj = s + "{wifi:\"" + ssid + "\",wifipw:\"" + ssidpw + "\",ap:\"" + ap + "\",appw:\"" + appw + "\",lock:\"" + lock + "\",user:\"" + user + "\"}";
+    String myObj = s + "{\"wifi\":\"" + ssid + "\",\"wifipw\":\"" + ssidpw + "\",\"ap\":\"" + ap + "\",\"appw\":\"" + appw + "\",\"lock\":\"" + lock + "\",\"user\":\"" + user + "\"}";
     return myObj;
 }
 
@@ -229,7 +328,22 @@ String WifiCtrl::getTheWifiElement(String asked = "void")
     {
         return lock;
     }
+    if (asked == "mode")
+    {
+        return __mode;
+    }
     return "void";
 }
+
+void WifiCtrl::changeConnectionMode(String mode = "void")
+{
+    if (mode != "void")
+    {
+        if (mode == "1" || mode == "2" || mode == "0")
+        {
+            writeToMemory("/wifi/mode", mode);
+        }
+    }
+};
 
 #endif

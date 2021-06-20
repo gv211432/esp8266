@@ -17,7 +17,7 @@ public:
     // This function instantly publishes on the given topic as per this project's standard json format..
     void publishOnMqtt(String, String, String);
 
-    const char *mqtt_server = "192.168.28.229";
+    const char *mqtt_server = "192.168.4.2";
 
 private:
     // This has to be unique for every device...
@@ -31,6 +31,7 @@ private:
 
 MqttCtrl::MqttCtrl() {}
 
+// To publish on mqtt call this function..
 void MqttCtrl::publishOnMqtt(String from, String to, String data)
 {
     if (client.connected())
@@ -41,6 +42,7 @@ void MqttCtrl::publishOnMqtt(String from, String to, String data)
     }
 }
 
+// This function must be called in loop and it will automatically execute every 30sec
 void MqttCtrl::mqttReconnect()
 {
     if (!client.connected())

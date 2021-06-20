@@ -20,6 +20,7 @@ public:
 
     //[First:pinNumber], [second:pin Usage]->0:Input Or 1:Output Or 2: Both, [third:name for pin]
     String pinName(int, String);
+    String pinNameDel(int);
 
     //[first:bossPin], [second:bossOnState]->0:Low or 1:High, [third:array of slaves]->pin Numbers,
     //  [fourth:turn Slave to State]->0:Low Or 1:High
@@ -120,17 +121,6 @@ private:
 // ┣━┫┃  ┃     ┣╸ ┃ ┃┃┗┫┃   ┃ ┃┃ ┃┃┗┫    ┃┃┣╸ ┣╸ ┃┃┗┫┃ ┃ ┃┃ ┃┃┗┫┗━┓
 // ╹ ╹┗━╸┗━╸   ╹  ┗━┛╹ ╹┗━╸ ╹ ╹┗━┛╹ ╹   ╺┻┛┗━╸╹  ╹╹ ╹╹ ╹ ╹┗━┛╹ ╹┗━┛
 //  ╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸
-
-// Caters the writing request to given path with payload in String format..
-// ----------------------------------------------
-void writeToMemory(String path, String payload)
-{
-    LittleFS.begin();
-    File myF = LittleFS.open(path, "w");
-    myF.print(payload);
-    myF.close();
-    LittleFS.end();
-}
 
 //Validates the given int variable as 0 or 1 and error for other values..
 // ----------------------------------------------
@@ -310,6 +300,7 @@ String PinCtrl::pinData(int pinType = -1, int pinNum = -1, char toPerform = 'z')
     return __pinData;
 }
 
+// Sets the pin name for the given pin..
 String PinCtrl::pinName(int pinNo = -1, String name = "__blank__")
 {
     if (pinNo != -1 && name != "__blank__")
@@ -340,7 +331,30 @@ String PinCtrl::pinName(int pinNo = -1, String name = "__blank__")
         writeToMemory("/pins/pinName", newPinName);
 
         __pinName = newPinName;
-        return newPinName;
+    }
+    return __pinName;
+}
+
+String PinCtrl::pinNameDel(int pinNo = -1)
+{
+    if (pinNo != -1)
+    {
+        DynamicJsonDocument docOrg(2048);
+        deserializeJson(docOrg, __pinName);
+        JsonArray myPinName = docOrg["pinTheme"].as<JsonArray>();
+        size_t myPinSize = myPinName.size();
+        for (size_t i = 0; i < myPinSize; i++)
+        {
+            if (myPinName[i]["no"] == pinNo)
+            {
+                myPinName.remove(i);
+                break;
+            }
+        }
+        String newPinName = docOrg.as<String>();
+        writeToMemory("/pins/pinName", newPinName);
+        __pinName = newPinName;
+        // TODO Please complete as you get time..
     }
     return __pinName;
 }

@@ -32,7 +32,7 @@ String processor(const String &var)
     String s = "";
     if (var == "OBJ")
     {
-        String myObj = WifiControl.getWifiInfoJson();
+        String myObj = WifiControl.getWifiInfo();
         return myObj;
     }
     if (var == "MENU")
@@ -42,89 +42,10 @@ String processor(const String &var)
     return s;
 }
 
+// Function to be executed when no web path is found..
 void onNotFound(AsyncWebServerRequest *request)
 {
-    //Handle Unknown Request
+    // Handle Unknown Request
+    // Redirect to the home page..
     request->redirect("/");
-}
-
-void mqttCallback(const char *topic, byte *payload, unsigned int length)
-{
-
-    String theRecievedData;
-    for (size_t i = 0; i < length; i++)
-    {
-        theRecievedData.concat((char)payload[i]);
-    }
-    Serial.println(theRecievedData);
-
-    DynamicJsonDocument docs(1024);
-    deserializeJson(docs, theRecievedData);
-    JsonArray myData = docs["data"].as<JsonArray>();
-    Serial.println(docs.as<String>());
-
-    String toHandler = docs["to"];
-    Serial.println(toHandler);
-    if (toHandler == "btnSwitch")
-    {
-        for (JsonVariant v : myData)
-        {
-            int pin = v["no"];
-            int to = v["is"];
-
-            Serial.println(pin);
-            Serial1.println(to);
-            if (PinControl.pinShowValidator(pin) == 1)
-            {
-                PinControl.toggleThePin(pin, to);
-                // No need to send the result or response
-                // This will be automatically done by othe function listning for changes in pins states..
-            }
-        }
-        return;
-    }
-
-    if (toHandler == "setTime")
-    {
-        for (JsonVariant v : myData)
-        {
-            int s = v["s"];
-            int h = v["h"];
-            int m = v["m"];
-            int d = v["d"];
-            int M = v["M"];
-            int y = v["y"];
-            int tSetStatus = timeWriter(s, h, m, d, M, y);
-
-            if (tSetStatus == 1)
-            {
-                String msg = "{\"status\":\"ok\"}";
-                MqttControl.publishOnMqtt("setTime", "opsStats", msg);
-            }
-        }
-        return;
-    }
-
-    if (toHandler == "getTime")
-    {
-        MqttControl.publishOnMqtt("getTime", "timeMan", sendTime());
-    }
-    if (toHandler == "wifiSet")
-    {
-    }
-    if (toHandler == "setTime")
-    {
-    }
-    if (toHandler == "setTime")
-    {
-    }
-    if (toHandler == "setTime")
-    {
-    }
-    if (toHandler == "setTime")
-    {
-    }
-    if (toHandler == "setTime")
-    {
-    }
 }

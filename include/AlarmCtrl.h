@@ -395,8 +395,8 @@ int AlarmCtrl::deleteAlarm(int alarmID = -1)
                 wAlarm.close();
                 LittleFS.end();
             }
+            return 0;
         }
-        return 0;
     }
     return 1;
 }

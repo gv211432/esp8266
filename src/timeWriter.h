@@ -6,40 +6,51 @@ int timeWriter(int s, int h, int m, int d, int M, int y)
     {
         return 1;
     }
-    if (s == -1)
+    if (s >= 0 && s < 60)
     {
         s = second();
     }
-    if (h == -1)
+    if (h >= 0 && h < 24)
     {
         h = hour();
     }
-    if (m == -1)
+    if (m >= 0 && m < 60)
     {
         m = minute();
     }
-    if (d == -1)
+    if (d > 0 && d < 32)
     {
         d = day();
     }
-    if (M == -1)
+    if (M > 0 && M < 13)
     {
         M = month();
     }
-    if (y == -1)
+    if (y > 2020 && y < 2060)
     {
         y = year();
     }
     setTime(h, m, s, d, M, y);
 
-    const String c = "";
-    String nowTime = c + hour() + " : " + minute() + " : " + second() + " : " + weekday() + " -- " + day() + "/" + month() + "/" + year() + " ";
+    // const String c = "";
+    // String nowTime = c + hour() + " : " + minute() + " : " + second() + " : " + weekday() + " -- " + day() + "/" + month() + "/" + year() + " ";
     return 0;
 }
-// Returns the time in the string format..
+// Returns the time in the json string format..
 String sendTime()
 {
     const String s = "";
     String thisTime = s + "{ \"hr\" : \"" + hour() + "\", \"min\" : \"" + minute() + "\", \"sec\" : \"" + second() + "\", \"wDay\" : \"" + weekday() + "\", \"day\" : \"" + day() + "\", \"mon\" : \"" + month() + "\", \"yr\" : \"" + year() + "\"}";
     return thisTime;
+}
+
+// Caters the writing request to given path with payload in String format..
+// ----------------------------------------------
+void writeToMemory(String path, String payload)
+{
+    LittleFS.begin();
+    File myF = LittleFS.open(path, "w");
+    myF.print(payload);
+    myF.close();
+    LittleFS.end();
 }
