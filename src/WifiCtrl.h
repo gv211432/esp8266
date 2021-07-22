@@ -21,6 +21,7 @@ public:
     String getTheWifiElement(String);
     int stringStrengthCheck(String &);
     void changeConnectionMode(String);
+    int getWifiMode();
 
 private:
     // All variabes for wifi
@@ -32,7 +33,7 @@ private:
     String appw;
     String lock;
     String user;
-    String __mode;
+    String __mode = "0"; // TODO mide it, its going to be chaneged..
 };
 
 // Returns the strongness of the string
@@ -172,7 +173,8 @@ void WifiCtrl::setWifi()
             }
             if (fName == "mode")
             {
-                __mode = wifiInfo;
+                // __mode = wifiInfo;
+                // __mode = wifiInfo;
                 continue;
             }
         }
@@ -345,5 +347,10 @@ void WifiCtrl::changeConnectionMode(String mode = "void")
         }
     }
 };
+
+int WifiCtrl::getWifiMode()
+{
+    return __mode.toInt();
+}
 
 #endif

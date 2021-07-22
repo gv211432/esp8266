@@ -305,7 +305,7 @@ String PinCtrl::pinName(int pinNo = -1, String name = "__blank__")
 {
     if (pinNo != -1 && name != "__blank__")
     {
-        DynamicJsonDocument docOrg(2048);
+        DynamicJsonDocument docOrg(3048);
         deserializeJson(docOrg, __pinName);
         JsonArray myPinName = docOrg["pinTheme"].as<JsonArray>();
         bool existOrNot = false;
@@ -339,7 +339,7 @@ String PinCtrl::pinNameDel(int pinNo = -1)
 {
     if (pinNo != -1)
     {
-        DynamicJsonDocument docOrg(2048);
+        DynamicJsonDocument docOrg(3048);
         deserializeJson(docOrg, __pinName);
         JsonArray myPinName = docOrg["pinTheme"].as<JsonArray>();
         size_t myPinSize = myPinName.size();
@@ -366,7 +366,7 @@ void PinCtrl::writingToStruct()
 {
     //Successfully tested.. Please don't alter
     Serial.println("Writing to struct initiated..");
-    DynamicJsonDocument docOrg(2048);
+    DynamicJsonDocument docOrg(3048);
     deserializeJson(docOrg, __pinRel);
     JsonArray myArray = docOrg["pinRel"].as<JsonArray>();
 
@@ -969,7 +969,7 @@ void PinCtrl::pinRelationConvertor()
 String PinCtrl::onOffStatusJson(char isHalf = 'n')
 {
     String forReturn = "";
-    DynamicJsonDocument docOrg2(512);
+    DynamicJsonDocument docOrg2(3512);
     JsonArray myShowPin = docOrg2["pinOnOff"].to<JsonArray>();
 
     size_t myJ = 0;

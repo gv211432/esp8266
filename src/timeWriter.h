@@ -1,39 +1,44 @@
 //This function write into the time...
-int timeWriter(int s, int h, int m, int d, int M, int y)
+int timeWriter(int s = -1, int h = -1, int m = -1, int d = -1, int M = -1, int y = -1)
 {
+    // Serial.printf("hr: %d  min: %d sec: %d day:%d  month: %d year: %d", h, m, s, d, M, y);
+
     //This function is independent of any arduino program, JUST #include time.h
     if (s == -1 && h == -1 && m == -1 && d == -1 && M == -1 && y == -1)
     {
         return 1;
     }
-    if (s >= 0 && s < 60)
+    if (s >= 60 && s < 0)
     {
         s = second();
     }
-    if (h >= 0 && h < 24)
+    if (h >= 24 && h < 0)
     {
         h = hour();
     }
-    if (m >= 0 && m < 60)
+    if (m >= 60 && m < 0)
     {
         m = minute();
     }
-    if (d > 0 && d < 32)
+    if (d > 32 && d < 0)
     {
         d = day();
     }
-    if (M > 0 && M < 13)
+    if (M > 12 && M < 0)
     {
         M = month();
     }
-    if (y > 2020 && y < 2060)
+    if (y > 2070 && y < 2021)
     {
         y = year();
     }
     setTime(h, m, s, d, M, y);
 
+    // Serial.printf("hr: %d  min: %d sec: %d day:%d  month: %d year: %d", h, m, s, d, M, y);
+
     // const String c = "";
     // String nowTime = c + hour() + " : " + minute() + " : " + second() + " : " + weekday() + " -- " + day() + "/" + month() + "/" + year() + " ";
+    // Serial.println(nowTime);
     return 0;
 }
 // Returns the time in the json string format..

@@ -9,7 +9,6 @@
 const int demoAlarm[18] = {0, 0, 50, 25, 61, 25, 61, 0, 0, 0, 0, 0, 0, 0, 2, 32, 13, 0};
 
 #define LED 2 //Define blinking LED pin
-#define SPIFFS LittleFS
 
 unsigned long previouTime = 2000;
 unsigned long eventTime = 30000;

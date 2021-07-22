@@ -386,7 +386,6 @@ void serverSetup()
                           {
                               PinControl.pinShowRemove(pin);
                               request->send(200, "text/plain", "ok");
-                              return;
                           }
                       }
                       if (add == 1)
@@ -395,9 +394,9 @@ void serverSetup()
                           {
                               PinControl.pinShow(pin);
                               request->send(200, "text/plain", "ok");
-                              return;
                           }
                       }
+                      MqttControl.publishOnMqtt("0000000000", "webServer", "opsStats", PinControl.pinShow());
                   }
                   request->send(200, "text/plain", "Not in proper format!!");
               });
@@ -405,7 +404,10 @@ void serverSetup()
     server.on("/ip", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                   const String s = "";
-                  String myJson = s + "{\"localIp\":\"" + WiFi.localIP().toString() + "\",\"apIp\":\"" + WiFi.softAPIP().toString() + "\"}";
+                  //   String myJson = s + "{\"localIp\":\"" + WiFi.localIP().toString() + "\",\"apIp\":\"" + WiFi.softAPIP().toString() + "\"}";
+
+                  String myJson = s + "{\"apIp\":\"" + WiFi.localIP().toString() + "\",\"localIp\":\"" + WiFi.softAPIP().toString() + "\"}";
+
                   AsyncWebServerResponse *response = request->beginResponse(200, "text/json", myJson);
                   response->addHeader("Access-Control-Allow-Origin", "*");
                   response->addHeader("Server", "Vishwakarma home automation");

@@ -80,6 +80,7 @@ void setup()
     AlarmControl.alarmRecover();
 
     client.setServer(MqttControl.mqtt_server, 1883);
+    // client.setServer("192.168.0.1", 1883);
     client.setCallback(mqttCallback);
     // PinControl.printIt();
     // -----------------------------------------------
@@ -130,11 +131,11 @@ void loop()
             {
                 ifChanged = 0;
 
-                String getOnOffStatus = PinControl.onOffStatusJson('h');
+                String getOnOffStatus = PinControl.onOffStatusJson('h'); // h means half...
                 ws.textAll(getOnOffStatus);
 
                 Serial.println(client.connected());
-                MqttControl.publishOnMqtt("loop", "stateCheck", getOnOffStatus);
+                MqttControl.publishOnMqtt("0000000000", "loop", "stateCheck", getOnOffStatus);
             }
         }
 
@@ -145,11 +146,11 @@ void loop()
     }
 
     // If wifi is connected then only there is possibility to connect to mqtt broker and web sever....
-    if (WiFi.status() == WL_CONNECTED)
-    {
-        // Function is to be repeated to connect to the broker..
-        MqttControl.mqttReconnect();
-        // Function to be repeated for listning on the mqtt topic..
-        client.loop();
-    }
+    // if (WiFi.status() == WL_CONNECTED)
+    // {
+    // Function is to be repeated to connect to the broker..
+    MqttControl.mqttReconnect();
+    // Function to be repeated for listning on the mqtt topic..
+    client.loop();
+    // }
 }
