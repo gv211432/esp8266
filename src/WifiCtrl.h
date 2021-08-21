@@ -19,8 +19,8 @@ public:
     String getWifiInfoJson();
     // Returns the perticular given variable...
     String getTheWifiElement(String);
-    int stringStrengthCheck(String &);
-    void changeConnectionMode(String);
+    // int stringStrengthCheck(String &);
+    void changeConnectionMode(int);
     int getWifiMode();
 
 private:
@@ -33,85 +33,9 @@ private:
     String appw;
     String lock;
     String user;
-    String __mode = "0"; // TODO mide it, its going to be chaneged..
+    // IF mode is 0 means Access Point(Hotspot), 1 means Station point(WIFI) and 2 means Both....
+    String __mode = "0"; // TODO mind it, its going to be chaneged..
 };
-
-// Returns the strongness of the string
-// 0 = ultra strong, 1 = very strong, 2 = moderate, 3 = Low, 4 = Pass Failed
-int WifiCtrl::stringStrengthCheck(String &input)
-{
-    size_t inputSize = input.length();
-    if (inputSize < 6)
-    {
-        return 4;
-    }
-
-    // If size is considerabel then proceed
-    bool isLower = false;
-    bool isUpper = false;
-    bool isDigit = false;
-    bool isSpecial = false;
-
-    for (size_t i = 0; i < inputSize; i++)
-    {
-        if (islower(input[i]))
-        {
-            isLower = true;
-        }
-        if (isupper(input[i]))
-        {
-            isUpper = true;
-        }
-        if (isdigit(input[i]))
-        {
-            isDigit = true;
-        }
-        if (input[i] ==
-                '@' ||
-            input[i] ==
-                '#' ||
-            input[i] ==
-                '&' ||
-            input[i] ==
-                '%' ||
-            input[i] ==
-                '$' ||
-            input[i] ==
-                '!')
-        {
-            isSpecial = true;
-        }
-        if (input[i] == ' ')
-        {
-            return 4;
-        }
-    }
-    if (isLower && isUpper && isDigit && isSpecial)
-    {
-        if (inputSize > 14)
-        {
-            // Ok for Access Point password and user password
-            return 0;
-        }
-        if (inputSize > 9)
-        {
-            // Ok for Access Point password and user password
-            return 1;
-        }
-        return 2;
-    }
-    if ((isLower && isSpecial) || (isUpper && isSpecial) || (isLower && isUpper))
-    {
-        if (inputSize > 16)
-        {
-            // Ok for Access Point password and user password
-            return 2;
-        }
-        // Ok for the wifi name and user name
-        return 3;
-    }
-    return 4;
-}
 
 // Reads the flash memory for the credentials and bring into the ram...
 void WifiCtrl::setWifi()
@@ -173,7 +97,7 @@ void WifiCtrl::setWifi()
             }
             if (fName == "mode")
             {
-                // __mode = wifiInfo;
+                __mode = wifiInfo;
                 // __mode = wifiInfo;
                 continue;
             }
@@ -299,7 +223,7 @@ String WifiCtrl::getWifiInfo()
 // Returns the json format wifi information to the caller..
 String WifiCtrl::getWifiInfoJson()
 {
-    String myObj = s + "{\"wifi\":\"" + ssid + "\",\"wifipw\":\"" + ssidpw + "\",\"ap\":\"" + ap + "\",\"appw\":\"" + appw + "\",\"lock\":\"" + lock + "\",\"user\":\"" + user + "\"}";
+    String myObj = s + "{\"wifi\":\"" + ssid + "\",\"wifipw\":\"" + ssidpw + "\",\"ap\":\"" + ap + "\",\"appw\":\"" + appw + "\",\"lock\":\"" + lock + "\",\"user\":\"" + user + "\",\"mode\":" + __mode.toInt() + "}";
     return myObj;
 }
 
@@ -337,13 +261,14 @@ String WifiCtrl::getTheWifiElement(String asked = "void")
     return "void";
 }
 
-void WifiCtrl::changeConnectionMode(String mode = "void")
+void WifiCtrl::changeConnectionMode(int mode = -1)
 {
-    if (mode != "void")
+    if (mode != -1)
     {
-        if (mode == "1" || mode == "2" || mode == "0")
+        if (mode == 1 || mode == 2 || mode == 0)
         {
-            writeToMemory("/wifi/mode", mode);
+            String toSet = String(mode);
+            writeToMemory("/wifi/mode", toSet);
         }
     }
 };

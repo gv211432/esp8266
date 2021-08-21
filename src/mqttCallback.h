@@ -8,6 +8,8 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
 {
     const String msg = "{\"status\":\"ok\"}";
 
+    // Signature of the received data is :
+    // {"id":_any_random_number, "from":"_from_the_source_handler", "toHandler", "data":[{"key":"pair"},{"name":"payload"}....]}
     String theRecievedData;
 
     // Cottecting data in the string variable one by one!!!s
@@ -23,18 +25,22 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
     JsonArray myData = docs["data"].as<JsonArray>();
 
     // again printing for debugging!!
-    Serial.println(docs.as<String>());
+    // Serial.println(docs.as<String>());
 
     String toHandler = docs["to"];
     String mqttCmdId = docs["id"];
-    Serial.println(toHandler);
+    // Serial.println(toHandler);
 
     bool isAllState = false;
+
+    // ----------------------------------------------
     if (toHandler == "allState")
     {
         isAllState = true;
     }
 
+    // Signature: {""}
+    // ----------------------------------------------
     if (toHandler == "pinState" || isAllState)
     {
         String getOnOffStatus = PinControl.onOffStatusJson(); // h means half...
@@ -45,10 +51,15 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
         JsonArray myDataOther = docsOther["pinOnOff"].as<JsonArray>();
         size_t myDataOtherSize = myDataOther.size();
 
+        if (myDataOtherSize == 0)
+        {
+            MqttControl.publishOnMqtt(mqttCmdId, "pinState", "pinState", "{}");
+        }
+
         // If pin status size is less or equal to 4 send it directly it will not crash the system...
         if (myDataOtherSize <= 4)
         {
-            MqttControl.publishOnMqtt(mqttCmdId, "pinState", "stateCheck", getOnOffStatus);
+            MqttControl.publishOnMqtt(mqttCmdId, "pinState", "pinState", getOnOffStatus);
         }
 
         // If size is greater than 4 then we can not send it directly the whole string(beyond size limit)
@@ -65,7 +76,7 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
 
                 if (((i + 1) % 4) == 0)
                 {
-                    MqttControl.publishOnMqtt(mqttCmdId, "pinState", "stateCheck", docs2.as<String>());
+                    MqttControl.publishOnMqtt(mqttCmdId, "pinState", "pinState", docs2.as<String>());
                     myData2.remove(0);
                     myData2.remove(1);
                     myData2.remove(2);
@@ -75,9 +86,9 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
 
             if ((myDataOtherSize % 4) != 0)
             {
-                size_t newIteratorSize = ((myDataOtherSize % 4));
+                // size_t newIteratorSize = ((myDataOtherSize % 4));
                 size_t newIteratorNum = (myDataOtherSize - (myDataOtherSize % 4));
-                printf("Printing the no : %d, and % d\n", newIteratorSize, newIteratorNum);
+                // printf("Printing the no : %d, and % d\n", newIteratorSize, newIteratorNum);
 
                 for (size_t i = newIteratorNum; i < myDataOtherSize; i++)
                 {
@@ -86,7 +97,7 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
                     // Because the very next iteration of the i will stop hence adding 1 to i in IF condition
                     if (myDataOtherSize == (i + 1))
                     {
-                        MqttControl.publishOnMqtt(mqttCmdId, "pinState", "stateCheck", docs2.as<String>());
+                        MqttControl.publishOnMqtt(mqttCmdId, "pinState", "pinState", docs2.as<String>());
                         break;
                     }
                 }
@@ -107,13 +118,13 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
             int pin = v["no"];
             int to = v["is"];
 
-            Serial.println(pin);
-            Serial1.println(to);
+            // Serial.println(pin);
+            // Serial1.println(to);
             if (PinControl.pinShowValidator(pin) == 1)
             {
                 PinControl.toggleThePin(pin, to);
-                String getOnOffStatus = PinControl.onOffStatusJson('h'); // h means half...
-                MqttControl.publishOnMqtt(mqttCmdId, "btnSwitch", "opsStats", getOnOffStatus);
+                // String getOnOffStatus = PinControl.onOffStatusJson('h'); // h means half...
+                // MqttControl.publishOnMqtt(mqttCmdId, "btnSwitch", "btnSwitch", getOnOffStatus);
 
                 // No need to send the result or response
                 // This will be automatically done by other function listning for changes in pins states..
@@ -142,6 +153,10 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
             int mymonth = -1;
             int myyear = -1;
 
+            // This conditional checking will not let the undefined or empty or null values to
+            // occupy the variables...
+            // If any value is missing it will just ignore them and update the time with the
+            // availabel values with is good for selective/fractional time update :)
             if (v["s"] == s)
             {
                 sec = s;
@@ -167,10 +182,11 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
                 myyear = y;
             }
 
+            // Values with -1 will be ignored by the time update handler function.. named(timeWriter)
             int tSetStatus = timeWriter(sec, hr, min, myday, mymonth, myyear);
-            if (tSetStatus == 1)
+            if (tSetStatus == 0)
             {
-                MqttControl.publishOnMqtt(mqttCmdId, "setTime", "opsStats", msg);
+                MqttControl.publishOnMqtt(mqttCmdId, "setTime", "setTime", sendTime());
             }
         }
         return;
@@ -180,7 +196,8 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
     // ----------------------------------------------
     if (toHandler == "getTime" || isAllState)
     {
-        MqttControl.publishOnMqtt(mqttCmdId, "getTime", "timeMan", sendTime());
+        String timeData = "{\"time\":[" + sendTime() + "]}";
+        MqttControl.publishOnMqtt(mqttCmdId, "getTime", "getTime", timeData);
         if (!isAllState)
         {
             return;
@@ -192,8 +209,8 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
         for (JsonVariant v : myData)
         {
             String anyStr = v;
-            int gotCheck = WifiControl.stringStrengthCheck(anyStr);
-            MqttControl.publishOnMqtt(mqttCmdId, "setTime", "opsStats", String(gotCheck));
+            int gotCheck = stringStrengthCheck(anyStr);
+            MqttControl.publishOnMqtt(mqttCmdId, "mq", "strength", String(gotCheck));
             return;
         }
     }
@@ -249,47 +266,78 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
             WifiControl.updateWifiSettings(wifiname, wifipass, hotname, hotpass, lockpass, username);
         }
 
-        MqttControl.publishOnMqtt(mqttCmdId, "setWifi", "opsStats", msg);
+        MqttControl.publishOnMqtt(mqttCmdId, "setWifi", "setWifi", WifiControl.getWifiInfoJson());
         return;
     }
 
+    // Changes the wifimode to given one in standard format
+    // ----------------------------------------------
     if (toHandler == "wifiMode")
     {
         for (JsonVariant v : myData)
         {
-            WifiControl.changeConnectionMode(v);
-            MqttControl.publishOnMqtt(mqttCmdId, "wifiMode", "opsStats", msg);
+            int to = v["to"];
+            WifiControl.changeConnectionMode(to);
+            MqttControl.publishOnMqtt(mqttCmdId, "wifiMode", "wifiMode", msg);
             delay(500);
             ESP.restart();
         }
         return;
     }
     // returns the wifi info to the other mqtt fellow subscriber..
+    // ----------------------------------------------
     if (toHandler == "getWifi" || isAllState)
     {
-        MqttControl.publishOnMqtt(mqttCmdId, "getWifi", "opsStats", WifiControl.getWifiInfoJson());
-        return;
+        String wifiData = "{\"wifi\":[" + WifiControl.getWifiInfoJson() + "]}";
+        MqttControl.publishOnMqtt(mqttCmdId, "getWifi", "getWifi", wifiData);
+        if (!isAllState)
+        {
+            return;
+        }
+    }
+
+    // data payload expected is : [{ "ask": "ssid" }, { "ask": "mode" },...]
+    // The following handler will publish the required info of wifi settings..
+    // ----------------------------------------------
+    if (toHandler == "getWifiElement")
+    {
+        for (JsonVariant v : myData)
+        {
+            String element = v["ask"];
+            String toSend = "{\"" + element + "\":\"" + WifiControl.getTheWifiElement(element) + "\"}";
+            MqttControl.publishOnMqtt(mqttCmdId, "getWifi", "getWifi", toSend);
+        }
     }
 
     // This will return the Json info of the alarms..
     // ----------------------------------------------
     if (toHandler == "alarmJson" || isAllState)
     {
-        bool isExecuted = false;
         String getAlarm = AlarmControl.getAlarms();
-        DynamicJsonDocument docsAlarm(4056);
+        DynamicJsonDocument docsAlarm(3056);
         deserializeJson(docsAlarm, getAlarm);
         size_t sizeOfDoc = docsAlarm.size();
 
         for (size_t i = 0; i < sizeOfDoc; i++)
         {
-            isExecuted = true;
-            MqttControl.publishOnMqtt(mqttCmdId, "alarmJson/alarm" + String(i), "opsStats", docsAlarm["alarm" + String(i)]);
+            String alarmData = "{\"aID\":" + String(i) + ",\"alarm\":[" + docsAlarm["alarm" + String(i)].as<String>() + "]}";
+            MqttControl.publishOnMqtt(mqttCmdId, "alarm", "alarmJson", alarmData);
+            Serial.println(alarmData);
         }
-        if (!isExecuted)
+        if (sizeOfDoc == 0)
         {
-            MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "opsStats", "{}");
+            MqttControl.publishOnMqtt(mqttCmdId, "alarm", "alarmJson", "{}");
         }
+        if (!isAllState)
+        {
+            return;
+        }
+    }
+
+    if (toHandler == "aID" || isAllState)
+    {
+        MqttControl.publishOnMqtt(mqttCmdId, "aID", "aID", AlarmControl.activeAlarmId());
+
         if (!isAllState)
         {
             return;
@@ -310,12 +358,14 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
         {
             // Evaluate oneShot(0,1,2) and take decision
             // ----------------------------------------------
-            int myShot = v["shot"];
-            if (myShot == v["shot"])
+            int myShot = v["oneShot"];
+            if (myShot == v["oneShot"])
             {
                 Serial.println("this is Shot");
 
                 //Creating new arry and copying demoAlarm into it..
+                // demoAlarm is exported by AlarmCtrl.h
+                // It is a standard signature/format for alarm arrays..
                 int myNewAlarm[18];
                 for (int i = 0; i < 18; i++)
                 {
@@ -352,31 +402,34 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
 
                 if (gotStatus == 1)
                 {
-                    MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "opsStats", "{\"status\":\"Failed\"}");
+                    MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "setAlarm", "{\"status\":\"Failed\"}");
                     return;
                 }
-                MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "opsStats", msg);
+                MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "setAlarm", msg);
                 return;
             }
             return;
         }
     }
 
+    // Deletes the alarm of given alarm ID
+    // ----------------------------------------------
     if (toHandler == "delAlarm")
     {
         bool doneStatus = false;
         for (JsonVariant v : myData)
         {
-            // If del is set in the query with alarm index number (aID), it will delete the alarm[aID]
+            // If del is set in the query with alarm index number (aID),
+            //  it will delete the alarm[aID]
             // ----------------------------------------------
             int alarmID = v["aID"];
             int myDelete = v["del"];
             if (v["del"] == myDelete && v["aID"] == alarmID)
             {
                 Serial.println("del and aID");
-                int aID = alarmID;
+                // int aID = alarmID;
 
-                int status = AlarmControl.deleteAlarm(aID);
+                int status = AlarmControl.deleteAlarm(alarmID);
                 if (status == 0)
                 {
                     doneStatus = true;
@@ -385,20 +438,23 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
         }
         if (doneStatus)
         {
-            MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "opsStats", msg);
+            MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "delAlarm", msg);
             return;
         }
-        MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "opsStats", "{\"status\":\"Failed\"}");
+        MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "delAlarm", "{\"status\":\"Failed\"}");
         return;
     }
 
+    // this will enable or disable the alarm of given aId
+    // ----------------------------------------------
     if (toHandler == "enableAlarm")
     {
         bool doneStatus = false;
 
         for (JsonVariant v : myData)
         {
-            // If enable is set in the query with alarm index number (aID), it will enable/disable the alarm[aID]
+            // If enable is set in the query with alarm index number (aID),
+            // it will enable/disable the alarm[aID]
             // ----------------------------------------------
             int alarmId = v["aID"];
             int enable = v["enable"];
@@ -415,10 +471,10 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
         }
         if (doneStatus)
         {
-            MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "opsStats", msg);
+            MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "enableAlarm", msg);
             return;
         }
-        MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "opsStats", "{\"status\":\"Failed\"}");
+        MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "enableAlarm", "{\"status\":\"Failed\"}");
         return;
     }
 
@@ -426,19 +482,63 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
     // ----------------------------------------------
     if (toHandler == "pinName" || isAllState)
     {
-        bool isExecuted = false;
         String pinName = PinControl.pinName();
-        DynamicJsonDocument docsPinName(4056);
-        deserializeJson(docsPinName, pinName);
-        JsonArray myPinNames = docsPinName["pinTheme"].as<JsonArray>();
-        for (JsonVariant v : myPinNames)
+        DynamicJsonDocument docsOther(3056);
+        deserializeJson(docsOther, pinName);
+
+        JsonArray myDataOther = docsOther["pinTheme"].as<JsonArray>();
+        size_t myDataOtherSize = myDataOther.size();
+
+        // if (myDataOtherSize == 0)
+        // {
+        //     MqttControl.publishOnMqtt(mqttCmdId, "pinName", "pinName", "{\"pinTheme\":[]}");
+        // }
+        // If pin status size is less or equal to 4 send it directly it will not crash the system...
+        if (myDataOtherSize <= 4 && myDataOtherSize > 0)
         {
-            isExecuted = true;
-            MqttControl.publishOnMqtt(mqttCmdId, "pinName", "opsStats", v);
+            MqttControl.publishOnMqtt(mqttCmdId, "pinName", "pinName", pinName);
         }
-        if (!isExecuted)
+
+        // If size is greater than 4 then we can not send it directly the whole string(beyond size limit)
+        // Send it in bunch of four it will not crash the system..
+        // Followig code does the same..
+        if (myDataOtherSize > 4)
         {
-            MqttControl.publishOnMqtt(mqttCmdId, "pinName", "opsStats", "{\"pinTheme\":[]}");
+            DynamicJsonDocument docs2(2056);
+            JsonArray myData2 = docs2["pinTheme"].to<JsonArray>();
+
+            for (size_t i = 0; i < myDataOtherSize; i++)
+            {
+                myData2[(i % 4)] = myDataOther[i];
+
+                if (((i + 1) % 4) == 0)
+                {
+                    MqttControl.publishOnMqtt(mqttCmdId, "pinName", "pinName", docs2.as<String>());
+                    myData2.remove(0);
+                    myData2.remove(1);
+                    myData2.remove(2);
+                    myData2.remove(3);
+                }
+            }
+
+            if ((myDataOtherSize % 4) != 0)
+            {
+                // size_t newIteratorSize = ((myDataOtherSize % 4));
+                size_t newIteratorNum = (myDataOtherSize - (myDataOtherSize % 4));
+                // printf("Printing the no : %d, and % d\n", newIteratorSize, newIteratorNum);
+
+                for (size_t i = newIteratorNum; i < myDataOtherSize; i++)
+                {
+                    myData2[(i % 4)] = myDataOther[i];
+
+                    // Because the very next iteration of the i will stop hence adding 1 to i in IF condition
+                    if (myDataOtherSize == (i + 1))
+                    {
+                        MqttControl.publishOnMqtt(mqttCmdId, "pinName", "pinName", docs2.as<String>());
+                        break;
+                    }
+                }
+            }
         }
         if (!isAllState)
         {
@@ -455,7 +555,7 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
             int pinNo = v;
             PinControl.pinNameDel(pinNo);
         }
-        MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "opsStats", msg);
+        MqttControl.publishOnMqtt(mqttCmdId, "setAlarm", "pinNameDel", msg);
         return;
     }
 
@@ -465,9 +565,14 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
     {
         for (JsonVariant v : myData)
         {
-            PinControl.pinName(v["no"], v["name"]);
+            int no = v["no"];
+            if (no == v["no"])
+            {
+
+                PinControl.pinName(v["no"], v["name"]);
+            }
         }
-        MqttControl.publishOnMqtt(mqttCmdId, "setPinName", "opsStats", msg);
+        MqttControl.publishOnMqtt(mqttCmdId, "setPinName", "setPinName", msg);
         return;
     }
 
@@ -475,7 +580,7 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
     // ----------------------------------------------
     if (toHandler == "pinCount" || isAllState)
     {
-        MqttControl.publishOnMqtt(mqttCmdId, "pinCount", "opsStats", PinControl.pinData());
+        MqttControl.publishOnMqtt(mqttCmdId, "pinCount", "pinCount", PinControl.pinData());
         if (!isAllState)
         {
             return;
@@ -486,7 +591,7 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
     // ----------------------------------------------
     if (toHandler == "pinBoss" || isAllState)
     {
-        MqttControl.publishOnMqtt(mqttCmdId, "pinBoss", "opsStats", PinControl.bossPin());
+        MqttControl.publishOnMqtt(mqttCmdId, "pinBoss", "pinBoss", PinControl.bossPin());
         if (!isAllState)
         {
             return;
@@ -497,7 +602,7 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
     // ----------------------------------------------
     if (toHandler == "pinActive" || isAllState)
     {
-        MqttControl.publishOnMqtt(mqttCmdId, "pinActive", "opsStats", PinControl.pinActive());
+        MqttControl.publishOnMqtt(mqttCmdId, "pinActive", "pinActive", PinControl.pinActive());
         if (!isAllState)
         {
             return;
@@ -520,7 +625,7 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
 
             PinControl.pinRelation(v["boss"], v["bInUp"], v["bOn"], mySlaveArr, mySlaveSize, v["sOn"]);
         }
-        MqttControl.publishOnMqtt(mqttCmdId, "pinRelSet", "opsStats", msg);
+        MqttControl.publishOnMqtt(mqttCmdId, "pinRelSet", "pinRelSet", msg);
         return;
     }
 
@@ -528,7 +633,66 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
     // ----------------------------------------------
     if (toHandler == "pinRelRead" || isAllState)
     {
-        MqttControl.publishOnMqtt(mqttCmdId, "pinRelRead", "opsStats", PinControl.pinRelation());
+        // MqttControl.publishOnMqtt(mqttCmdId, "pinRelRead", "pinRelRead", PinControl.pinRelation());
+
+        String pinRelRead = PinControl.pinRelation();
+        DynamicJsonDocument docsOther(3056);
+        deserializeJson(docsOther, pinRelRead);
+
+        JsonArray myDataOther = docsOther["pinRel"].as<JsonArray>();
+        size_t myDataOtherSize = myDataOther.size();
+
+        // if (myDataOtherSize == 0)
+        // {
+        //     MqttControl.publishOnMqtt(mqttCmdId, "pinRelRead", "pinRelRead", "{}");
+        // }
+        // If pin status size is less or equal to 4 send it directly it will not crash the system...
+        if (myDataOtherSize <= 3)
+        {
+            MqttControl.publishOnMqtt(mqttCmdId, "pinRelRead", "pinRelRead", pinRelRead);
+        }
+
+        // If size is greater than 4 then we can not send it directly the whole string(beyond size limit)
+        // Send it in bunch of four it will not crash the system..
+        // Followig code does the same..
+        if (myDataOtherSize > 3)
+        {
+            DynamicJsonDocument docs2(2056);
+            JsonArray myData2 = docs2["pinRel"].to<JsonArray>();
+
+            for (size_t i = 0; i < myDataOtherSize; i++)
+            {
+                myData2[(i % 3)] = myDataOther[i];
+
+                if (((i + 1) % 3) == 0)
+                {
+                    MqttControl.publishOnMqtt(mqttCmdId, "pinRelRead", "pinRelRead", docs2.as<String>());
+                    myData2.remove(0);
+                    myData2.remove(1);
+                    myData2.remove(2);
+                }
+            }
+
+            if ((myDataOtherSize % 3) != 0)
+            {
+                // size_t newIteratorSize = ((myDataOtherSize % 3));
+                size_t newIteratorNum = (myDataOtherSize - (myDataOtherSize % 3));
+                // printf("Printing the no : %d, and % d\n", newIteratorSize, newIteratorNum);
+
+                for (size_t i = newIteratorNum; i < myDataOtherSize; i++)
+                {
+                    myData2[(i % 3)] = myDataOther[i];
+
+                    // Because the very next iteration of the i will stop hence adding 1 to i in IF condition
+                    if (myDataOtherSize == (i + 1))
+                    {
+                        MqttControl.publishOnMqtt(mqttCmdId, "pinRelRead", "pinRelRead", docs2.as<String>());
+                        break;
+                    }
+                }
+            }
+        }
+
         if (!isAllState)
         {
             return;
@@ -544,7 +708,7 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
             size_t pin = v;
             PinControl.pinRelationRemove(pin);
         }
-        MqttControl.publishOnMqtt(mqttCmdId, "pinRelDel", "opsStats", msg);
+        MqttControl.publishOnMqtt(mqttCmdId, "pinRelDel", "pinRelDel", msg);
         return;
     }
 
@@ -562,7 +726,7 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
                 if (PinControl.pinShowValidator(pin) == 1)
                 {
                     PinControl.pinShowRemove(pin);
-                    MqttControl.publishOnMqtt(mqttCmdId, "pinShow", "opsStats", msg);
+                    MqttControl.publishOnMqtt(mqttCmdId, "pinShow", "pinShow", msg);
                 }
             }
             if (add == 1)
@@ -570,11 +734,11 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
                 if (PinControl.pinShowValidator(pin) != 1)
                 {
                     PinControl.pinShow(pin);
-                    MqttControl.publishOnMqtt(mqttCmdId, "pinShow", "opsStats", msg);
+                    MqttControl.publishOnMqtt(mqttCmdId, "pinShow", "pinShow", msg);
                 }
             }
         }
-        MqttControl.publishOnMqtt(mqttCmdId, "pinShow", "opsStats", PinControl.pinShow());
+        MqttControl.publishOnMqtt(mqttCmdId, "pinShow", "pinShow", PinControl.pinShow());
         if (!isAllState)
         {
             return;
@@ -596,24 +760,147 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
         {
             apIp = WiFi.softAPIP().toString();
         }
-        String myJson = s + "{\"localIp\":\"" + wifiIp + "\",\"apIp\":\"" + apIp + "\"}";
-        MqttControl.publishOnMqtt(mqttCmdId, "ip", "opsStats", myJson);
+        String myJson = s + "{\"ip\":[{\"localIp\":\"" + wifiIp + "\",\"apIp\":\"" + apIp + "\"}]}";
+        MqttControl.publishOnMqtt(mqttCmdId, "ip", "ip", myJson);
         if (!isAllState)
         {
             return;
         }
     }
 
-    if (toHandler == "scanWifi" || isAllState)
+    // Scans the available wifi network in the vicinity
+    // ----------------------------------------------
+    if (toHandler == "scanWifi")
     {
-        byte numSsid = WiFi.scanNetworks();
-        String mySsid = " " + numSsid;
-        Serial.print("Number of available WiFi networks discovered:");
-        Serial.println(numSsid);
-        MqttControl.publishOnMqtt(mqttCmdId, "ip", "opsStats", mySsid);
+        // TODO Contains error..
+        // byte numSsid[] = WiFi.scanNetworks();
+        // String mySsid = "" + String((char *)numSsid);
+        // Serial.print("Number of available WiFi networks discovered:");
+        // Serial.println(numSsid);
+        // MqttControl.publishOnMqtt(mqttCmdId, "ip", "scanWifi", mySsid);
+        // if (!isAllState)
+        // {
+        //     return;
+        // }
+    }
+
+    // Publishes the the mqtt data on the outTopic
+    // ----------------------------------------------
+    if (toHandler == "getMqtt")
+    {
+        String mqttData = "{\"mqtt\":[" + MqttControl.getMqttData() + "]}";
+        MqttControl.publishOnMqtt(mqttCmdId, "getMqtt", "getMqtt", mqttData);
+    }
+
+    // This sets the new mqtt configs after validation and supports fractional updates...
+    // ----------------------------------------------
+    if (toHandler == "setMqtt")
+    {
+        String user = "void";
+        String pass = "void";
+        String server = "void";
+        String device = "void";
+
+        for (JsonVariant v : myData)
+        {
+            String username = v["user"];
+            String password = v["pass"];
+            String serverIP = v["server"];
+            String deviceID = v["token"];
+
+            if (stringStrengthCheck(username) <= 2)
+            {
+                user = username;
+            }
+            if (stringStrengthCheck(password) <= 2)
+            {
+                pass = password;
+            }
+            if (stringStrengthCheck(serverIP) <= 4)
+            {
+                server = serverIP;
+            }
+            if (stringStrengthCheck(deviceID) <= 2)
+            {
+                device = deviceID;
+            }
+            MqttControl.setMqttData(server, user, pass, device);
+            break;
+        }
         if (!isAllState)
         {
             return;
         }
+    }
+
+    // This reads the given path and publish data on the outTopic
+    // Mqtt works well wen length is 145 or less, more length might crash or no response..
+    // ----------------------------------------------
+    if (toHandler == "readPath")
+    {
+        for (JsonVariant v : myData)
+        {
+            String path = v["path"];
+            String theData = readTheMemory(path);
+            size_t length = theData.length();
+            // Serial.println("Length of the data....");
+
+            if (length > 170)
+            {
+                size_t index = 170;
+                while (index < length)
+                {
+                    // Cutting the string to acceptable length to transfer on mqtt protocol...
+                    String toSend = "{\"" + path + "\":\"" + cuttingString(theData, index - 170, 170) + "\"}";
+                    MqttControl.publishOnMqtt(mqttCmdId, "readPath", "readPath", toSend);
+                    // Serial.println(theData.substring(index, 170));
+                    // Serial.println(cuttingString(theData, index - 170, 170));
+                    // Serial.println(index);
+                    index += 170;
+                };
+
+                if (length % 170 != 0)
+                {
+                    String toSend = "{\"" + path + "\":\"" + cuttingString(theData, index - 170, 170 + length - index) + "\"}";
+                    MqttControl.publishOnMqtt(mqttCmdId, "readPath", "readPath", toSend);
+                    // Serial.println("Final printing....");
+                    // Serial.println(theData.substring(index - 170, length));
+                    // Serial.println(cuttingString(theData, index - 170, 170 + length - index));
+                    // Serial.println(index - 170);
+                    // Serial.println(length);
+                }
+            }
+            else
+            {
+                String toSend = "{\"" + path + "\":\"" + theData + "\"}";
+                // Serial.println(toSend.length());
+                MqttControl.publishOnMqtt(mqttCmdId, "readPath", "readPath", toSend);
+            }
+            return;
+            //TODO there is data length limit of mqtt to publish please fix that..
+        }
+    }
+
+    // This writes the given data to the given path..
+    // ----------------------------------------------
+    if (toHandler == "writePath")
+    {
+        for (JsonVariant v : myData)
+        {
+            String path = v["path"];
+            String payload = v["data"];
+            writeToMemory(path, payload);
+            return;
+            //TODO there is data length limit of mqtt to receive please fix that..
+        }
+        MqttControl.publishOnMqtt(mqttCmdId, "writePath", "writePath", msg);
+    }
+
+    // this handler resets this device instantly!!
+    // ----------------------------------------------
+    if (toHandler == "reboot")
+    {
+        delay(1000);
+        ESP.restart();
     }
 }

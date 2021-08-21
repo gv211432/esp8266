@@ -79,7 +79,9 @@ void setup()
     // This address the function which reads the memory for alarm
     AlarmControl.alarmRecover();
 
-    client.setServer(MqttControl.mqtt_server, 1883);
+    // Dynamically sets all the empty variabels from the memory data
+    const char *mqtt_server = MqttControl.server.c_str();
+    client.setServer(mqtt_server, 1883);
     // client.setServer("192.168.0.1", 1883);
     client.setCallback(mqttCallback);
     // PinControl.printIt();
@@ -110,33 +112,35 @@ void loop()
     unsigned long currentTimeForPin = millis();
     if ((currentTimeForPin - previouTimeForPin) >= eventTimeForPin)
     {
-        if (ws.count() != 0)
+        int ifChanged = 0;
+
+        for (size_t i = 0; i < sizeMyPinStatsT; i++)
         {
-            int ifChanged = 0;
-
-            for (size_t i = 0; i < sizeMyPinStatsT; i++)
+            // If any pin changes their previous status then only send the message..
+            // All currently active/working pin is in myPinStatsTrack array..
+            // If status changes the following loop get executed and the ifChanged is changed..
+            if (myPinStatsTrack[i] != digitalRead(myPinNo[i]))
             {
-                // If any pin changes their previous status then only send the message..
-                // All currently active/working pin is in myPinStatsTrack array..
-                // If status changes the following loop get executed and the ifChanged is changed..
-                if (myPinStatsTrack[i] != digitalRead(myPinNo[i]))
-                {
-                    ifChanged = 1;
-                    myPinStatsTrack[i] = digitalRead(myPinNo[i]);
-                }
+                ifChanged = 1;
+                myPinStatsTrack[i] = digitalRead(myPinNo[i]);
             }
+        }
 
-            // Once message is sent revert the ifChanged status
-            if (ifChanged == 1)
+        // Once message is sent revert the ifChanged status
+        if (ifChanged == 1)
+        {
+            ifChanged = 0;
+
+            String getOnOffStatus = PinControl.onOffStatusJson('h'); // h means half...
+            if (ws.count() != 0)
             {
-                ifChanged = 0;
-
-                String getOnOffStatus = PinControl.onOffStatusJson('h'); // h means half...
                 ws.textAll(getOnOffStatus);
-
-                Serial.println(client.connected());
-                MqttControl.publishOnMqtt("0000000000", "loop", "stateCheck", getOnOffStatus);
             }
+
+            if (client.connected())
+            {
+                MqttControl.publishOnMqtt("0000000000", "loop", "pinState", getOnOffStatus);
+            };
         }
 
         // For cleaning the clients on web sockets after connection is closed..

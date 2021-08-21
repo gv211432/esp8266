@@ -34,6 +34,8 @@ public:
     // Returns the json string of the status of the alarms..
     String getAlarms();
 
+    String activeAlarmId();
+
     // Write into the working array of alarms the given array ..
     int alarmMemWriter(int[18], int);
 
@@ -58,6 +60,7 @@ private:
 
     void alarmLoop(int[18]);
     const String s = "";
+    String activeAlarms = "";
 };
 
 // ====================================================================================
@@ -155,6 +158,23 @@ String AlarmCtrl::getAlarms()
     return newString;
 }
 
+String AlarmCtrl::activeAlarmId()
+{
+    String thisAlarm = "{\"aID\":[";
+    for (int i = 0; i <= 9; i++)
+    {
+        if (alarms[i][0] == 0)
+        {
+            continue;
+        }
+        String myAlarm = String(i) + ",";
+        thisAlarm.concat(myAlarm);
+    }
+    String newString = thisAlarm.substring(0, thisAlarm.length() - 1);
+    newString.concat("]}");
+    return newString;
+}
+
 void AlarmCtrl::alarmLoop(int alarmOne[18])
 {
     if (alarmOne[0] == 1 && alarmOne[1] == 1)
@@ -199,7 +219,7 @@ void AlarmCtrl::alarmLoop(int alarmOne[18])
             }
         }
 
-        // Switch alarm for once
+        // Switch on the alarm for once
         if (alarmOne[14] == 1)
         {
             if (alarmOne[4] == minute() && alarmOne[3] == hour() && alarmOne[15] == day() && alarmOne[16] == month() && alarmOne[17] == year())

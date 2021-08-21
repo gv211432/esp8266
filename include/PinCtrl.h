@@ -305,6 +305,10 @@ String PinCtrl::pinName(int pinNo = -1, String name = "__blank__")
 {
     if (pinNo != -1 && name != "__blank__")
     {
+        if (name.length() >= 24)
+        {
+            return __pinName;
+        }
         DynamicJsonDocument docOrg(3048);
         deserializeJson(docOrg, __pinName);
         JsonArray myPinName = docOrg["pinTheme"].as<JsonArray>();

@@ -10,4 +10,7 @@
     how i solved it and biblographies...
 
 
-=> 
+=> How to cut off part of a String?
+solution: 
+
+    anyString.substring(3);

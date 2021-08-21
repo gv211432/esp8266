@@ -396,7 +396,10 @@ void serverSetup()
                               request->send(200, "text/plain", "ok");
                           }
                       }
-                      MqttControl.publishOnMqtt("0000000000", "webServer", "opsStats", PinControl.pinShow());
+                      if (client.connected())
+                      {
+                          MqttControl.publishOnMqtt("0000000000", "webServer", "pinShow", PinControl.pinShow());
+                      }
                   }
                   request->send(200, "text/plain", "Not in proper format!!");
               });
@@ -404,11 +407,19 @@ void serverSetup()
     server.on("/ip", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                   const String s = "";
-                  //   String myJson = s + "{\"localIp\":\"" + WiFi.localIP().toString() + "\",\"apIp\":\"" + WiFi.softAPIP().toString() + "\"}";
+                  String myJson = "";
 
-                  String myJson = s + "{\"apIp\":\"" + WiFi.localIP().toString() + "\",\"localIp\":\"" + WiFi.softAPIP().toString() + "\"}";
+                  if (ON_STA_FILTER(request))
+                  {
+                      myJson = s + "{\"localIp\":\"" + WiFi.localIP().toString() + "\",\"apIp\":\"" + WiFi.softAPIP().toString() + "\"}";
+                  }
+                  else
+                  {
+                      myJson = s + "{\"apIp\":\"" + WiFi.localIP().toString() + "\",\"localIp\":\"" + WiFi.softAPIP().toString() + "\"}";
+                  }
 
                   AsyncWebServerResponse *response = request->beginResponse(200, "text/json", myJson);
+
                   response->addHeader("Access-Control-Allow-Origin", "*");
                   response->addHeader("Server", "Vishwakarma home automation");
                   request->send(response);
