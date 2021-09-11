@@ -169,6 +169,15 @@
         "wholeMatch": false
       },
       "color": "gray"
+    },
+    {
+      "pattern": {
+        "type": "string",
+        "expression": "┏━╸╻ ╻╺┳╸┏━┓┏━┓   ┏━╸╻ ╻┏┓╻┏━╸╺┳╸╻┏━┓┏┓╻┏━┓\n┣╸ ┏╋┛ ┃ ┣┳┛┣━┫   ┣╸ ┃ ┃┃┗┫┃   ┃ ┃┃ ┃┃┗┫┗━┓\n┗━╸╹ ╹ ╹ ╹┗╸╹ ╹   ╹  ┗━┛╹ ╹┗━╸ ╹ ╹┗━┛╹ ╹┗━┛\n",
+        "ignoreCase": false,
+        "wholeMatch": false
+      },
+      "color": "gray"
     }
   ]
 }

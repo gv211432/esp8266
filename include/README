@@ -1,3 +1,82 @@
+╺┳╸┏━┓┏━┓╻  ┏━┓
+ ┃ ┃ ┃┃ ┃┃  ┗━┓
+ ╹ ┗━┛┗━┛┗━╸┗━┛
+
+For javascript compression..
+https://extendsclass.com/javascript-minifier.html
+
+For html compression..
+https://minifycode.com/html-minifier/
+
+==========================================================================
+
+╺┳╸┏━┓┏━╸┏━╸
+ ┃ ┣┳┛┣╸ ┣╸ 
+ ╹ ╹┗╸┗━╸┗━╸
+
+data
+├── alarms
+├── mqtt
+│   ├── ison
+│   ├── pass
+│   ├── port
+│   ├── server
+│   ├── token
+│   ├── useless
+│   └── user
+├── pins
+│   ├── pinActive
+│   ├── pinData
+│   ├── pinName
+│   ├── pinRel
+│   ├── pinShow
+│   └── pinStatKeep
+└── wifi
+    ├── ap
+    ├── app
+    ├── device
+    ├── lock
+    ├── mode
+    ├── st
+    ├── stp
+    └── user
+
+
+include
+├── AlarmCtrl.h
+├── MqttCtrl.h
+├── PinCtrl.h
+├── README
+└── WifiCtrl.h
+
+
+src
+├── alarmHtml.h
+├── copyOfMqtt.h
+├── css.h
+├── extraTools.h
+├── fsValidate.h
+├── home.h
+├── jquery.h
+├── main.cpp
+├── menuHtml.h
+├── menuScript.h
+├── mqttCallback.h
+├── pinControl.h
+├── pinRelationHtml.h
+├── setTimeHtml.h
+├── showTerminal.h
+├── terminalName.h
+├── timeAndBoot.h
+├── variables.h
+├── webServer.h
+└── wifiHtml.h
+
+==========================================================================
+
+╺┳┓┏━┓┏━╸┏━┓
+ ┃┃┃ ┃┃  ┗━┓
+╺┻┛┗━┛┗━╸┗━┛
 
 This directory is intended for project header files.
 

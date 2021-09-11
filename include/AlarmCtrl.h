@@ -61,6 +61,10 @@ private:
     void alarmLoop(int[18]);
     const String s = "";
     String activeAlarms = "";
+
+    // These are the variables for alarm loop function to work seamlessly
+    unsigned long previouTime = 2000;
+    unsigned long eventTime = 30000;
 };
 
 // ====================================================================================
@@ -135,9 +139,15 @@ void AlarmCtrl::alarmRecover()
 
 void AlarmCtrl::startAlarm()
 {
-    for (int i = 0; i <= 9; i++)
+
+    unsigned long currentTime = millis();
+    if ((currentTime - previouTime) >= eventTime)
     {
-        alarmLoop(alarms[i]);
+        for (int i = 0; i <= 9; i++)
+        {
+            alarmLoop(alarms[i]);
+        }
+        previouTime = currentTime;
     }
 }
 
@@ -274,7 +284,7 @@ int AlarmCtrl::alarmMemWriter(int myIndexer[18], int aID = -1)
     // "tue":0,"wed":0,"thu":0,"fri":0,"sat":0,"oneShot":2,"day":32,"month":13,"year":0}
     // ╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸
     // free,enable/disable,pinNo,onHr,onMin,offHr,offMin,sun,mon,tue,wed,thu,fri,sat,oneShot,day,month,year [18]
-    //  0/1      1/0,        0,   0,    0,    0,    0,    0,  1,  1,  1,  1,  1,  0,  0/1/2,  32,   13,  0  [18]
+    //  0/1      1/0,        0,   0,    0,    0,    0,    0,  1,  1,  1,  1,  1,  0,0/1/2/3/4,  32,   13,  0  [18]
     //   0        1          2    3      4     5    6     7   8   9   10  11  12  13   14     15    16   17 [18]
     // ╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸╺━╸
 

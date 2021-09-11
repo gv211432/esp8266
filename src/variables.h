@@ -10,9 +10,6 @@ const int demoAlarm[18] = {0, 0, 50, 25, 61, 25, 61, 0, 0, 0, 0, 0, 0, 0, 2, 32,
 
 #define LED 2 //Define blinking LED pin
 
-unsigned long previouTime = 2000;
-unsigned long eventTime = 30000;
-
 // ============================ Initilizations ======================================
 // ==================================================================================
 // Following is server initialization
@@ -28,17 +25,20 @@ AsyncWebSocket ws("/ws");
 // ----------------------------------------------
 String processor(const String &var)
 {
-    String s = "";
-    if (var == "OBJ")
+    String myObj = "";
+    if (var == "WIFIOBJ")
     {
-        String myObj = WifiControl.getWifiInfo();
-        return myObj;
+        myObj = WifiControl.getWifiInfoJson();
     }
-    if (var == "MENU")
+    else if (var == "MQTTOBJ")
     {
-        return menu_html;
+        myObj = MqttControl.getMqttData();
     }
-    return s;
+    else if (var == "MENU")
+    {
+        myObj = menu_html;
+    }
+    return myObj;
 }
 
 // Function to be executed when no web path is found..

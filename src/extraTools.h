@@ -44,7 +44,7 @@ int timeWriter(int s = -1, int h = -1, int m = -1, int d = -1, int M = -1, int y
     }
     setTime(h, m, s, d, M, y);
 
-    // Serial.printf("hr: %d  min: %d sec: %d day:%d  month: %d year: %d", h, m, s, d, M, y);
+    Serial.printf("hr: %d  min: %d sec: %d day:%d  month: %d year: %d", h, m, s, d, M, y);
 
     // const String c = "";
     // String nowTime = c + hour() + " : " + minute() + " : " + second() + " : " + weekday() + " -- " + day() + "/" + month() + "/" + year() + " ";
@@ -106,14 +106,20 @@ String readTheMemory(String filePath = "null")
 }
 
 // Returns the strongness of the string
-// 0 = ultra strong, 1 = very strong, 2 = moderate, 3 = Low, 4 = Pass Failed
+// 0 = ultra strong, 1 = very strong, 2 = moderate, 3 = Low, 4 = Pass Failed 5 = INVALID(0=LENGTH>24)
 // ALways use comparision operators like (<=) or (>=) to compare the result..
-int stringStrengthCheck(String &input)
+int stringStrengthCheck(String input)
 {
     size_t inputSize = input.length();
+
+    //
     if (inputSize < 6)
     {
         return 4;
+    }
+    else if (inputSize > 24)
+    {
+        return 5;
     }
 
     // If size is considerabel then proceed
@@ -180,7 +186,7 @@ int stringStrengthCheck(String &input)
         // Ok for the wifi name and user name
         return 3;
     }
-    return 4;
+    return 5;
 }
 
 // It cuts the given string from given position of string to the given position..
@@ -193,4 +199,21 @@ String cuttingString(String payload, size_t from = 0, size_t to = 0)
         forReturn.concat(payload[i]);
     }
     return forReturn;
+}
+
+// Before calling this function, Please mount the LittleFS using command
+// LittleFS.begin(), otherwise uneffected
+void validatePath(String path = "", String defaultData = "")
+{
+    if (path != "" && path[0] == '/' && path[0] != ' ')
+    {
+        if (LittleFS.exists(path))
+        {
+            return;
+        }
+        File myF = LittleFS.open(path, "w");
+        myF.print(defaultData);
+        myF.close();
+    }
+    return;
 }

@@ -5,18 +5,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wifi Settings</title>
-    <link rel="stylesheet" href="http://192.168.218.155/style.css" />
+    <link rel="stylesheet" href="http://192.168.65.221/style.css" />
+
     <style>
       .middleIt {
         display: flex;
         justify-content: center;
         text-align: center;
       }
+      input {
+        margin-top: 10px;
+      }
     </style>
-    <script src="http://192.168.218.155/jquery.js"></script>
+    <script src="http://192.168.65.221/jquery.js"></script>
+    <script src="http://192.168.65.221/jquery.js?menu"></script>
   </head>
   <body style="font-size: 16px">
-    <div class="middleIt">
+    <br /><br />
+    <div id="root" class="middleIt">
       <div
         class="middleIt"
         id="mainForm"
@@ -27,15 +33,8 @@
           margin-bottom: 10px;
         "
       >
-        <form
-          method="GET"
-          action="#"
-          id="login-form"
-          class="login-form"
-          autocomplete="off"
-          role="main"
-        >
-          <h2>Wifi-Hotspot Settings..</h2>
+        <form id="login-form" class="login-form">
+          <h2>Wifi & Hotspot Settings</h2>
 
           <div>
             <label for="wifiname">Wifi Name* </label>
@@ -116,6 +115,95 @@
             />
           </div>
           <br />
+          <h2>MQTT Settings</h2>
+          <!-- Hi is for server ip for the device to connect to -->
+          <div>
+            <label for="server">MQTT Server IP* </label>
+            <input
+              type="text"
+              class="text"
+              name="server"
+              id="server"
+              placeholder="Server IP"
+              tabindex="1"
+              required
+            />
+          </div>
+          <br />
+          <!-- This is for mqtt port number  -->
+          <div>
+            <label for="mqttport">MQTT Port*</label>
+            <input
+              type="text"
+              class="text"
+              name="mqttport"
+              id="mqttport"
+              placeholder="Port Number"
+              tabindex="1"
+              required
+            />
+          </div>
+
+          <br />
+          <!-- For mqtt user id on with device will connect -->
+          <div>
+            <label for="mqttuser">MQTT User ID* </label>
+            <input
+              type="text"
+              class="text"
+              name="mqttuser"
+              id="mqttuser"
+              placeholder="MQTT User ID"
+              tabindex="1"
+              required
+            />
+          </div>
+
+          <br />
+          <!-- For mqtt user password -->
+          <div>
+            <label for="mqttpass">MQTT Password*</label>
+            <input
+              type="password"
+              class="text"
+              name="mqttpass"
+              id="mqttpass"
+              placeholder="MQTT Password"
+              tabindex="1"
+              required
+            />
+          </div>
+
+          <br />
+          <!-- For token id given to every device -->
+          <div>
+            <label for="token">Token ID*</label>
+            <input
+              type="password"
+              class="text"
+              name="token"
+              id="token"
+              placeholder="Token ID"
+              tabindex="1"
+              required
+            />
+          </div>
+
+          <br />
+
+          <!-- For DEVICE ID given to every device -->
+          <div>
+            <label for="device">Device ID (Read Only)</label>
+            <input
+              type="password"
+              class="text"
+              name="device"
+              id="device"
+              placeholder="espHOME"
+              tabindex="1"
+            />
+          </div>
+          <br />
           <div>
             <span
               id="showPassword"
@@ -127,60 +215,370 @@
               >Show Passwords!!
             </span>
           </div>
-          <br />
-          <p
-            id="showTime"
-            style="color: #d1ce0d; font-size: 14px; font-weight: 600"
-          ></p>
 
-          <button
-            type="submit"
-            name="submit"
-            value="Save Settings"
-            id="toSubmit"
-            class="red"
-          >
+          <br />
+          <h2>Service Settings</h2>
+          <!-- Following is the buttons for switching wifi hotspot and mqtt -->
+          <div style="flex-direction: row">
+            <h4 style="word-spacing: 30px">WIFI HOTSPOT MQTT</h4>
+            <!-- Dynamic data is feeded by jQuery -->
+            <button
+              style="margin-left: 20px; margin-right: 20px"
+              class="unit"
+              type="button"
+              id="wifi"
+              ison="0"
+            >
+              ...
+            </button>
+            <button
+              style="margin-left: 20px; margin-right: 20px"
+              class="unit"
+              type="button"
+              id="hotspot"
+              ison="0"
+            >
+              ...
+            </button>
+            <button
+              style="margin-left: 20px; margin-right: 20px"
+              class="unit"
+              type="button"
+              id="mqtt"
+              ison="0"
+            >
+              ...
+            </button>
+          </div>
+          <br />
+
+          <p
+            id="showTheTime"
+            style="color: #d1ce0d; font-size: 18px; font-weight: 600"
+          ></p>
+          <p
+            id="warnings"
+            style="color: #d47304; font-size: 18px; font-weight: 600"
+          ></p>
+          <button name="submit" value="Save Settings" id="toSubmit" class="red">
             Save Settings
           </button>
         </form>
       </div>
       <br />
     </div>
+    <div><button id="menuBtn">&#9776;</button></div>
+    %MENU% <br /><br />
     <script>
-      var myOBJ = %OBJ%;
-
       $(function () {
-        let wifiName = $("#wifiname");
+        // Making palce to show warnings for invalid settings
+        let warnings = $("#warnings").hide();
+
+        var myWifiObj, myMqttObj;
+
+        var ww = `%WIFIOBJ%`,
+          mm = `%MQTTOBJ%`;
+        try {
+          myWifiObj = JSON.parse(ww);
+          myMqttObj = JSON.parse(mm);
+        } catch (error) {
+          warnings.text("Error in Loading Details!!").slideDown(150);
+        }
+
+        // myWifiObj = {
+        //   wifi: "GalaxyM30s",
+        //   wifipw: "9224410961",
+        //   ap: "myVishwakarma",
+        //   appw: "9224410961",
+        //   lock: "92244@Great",
+        //   user: "Gaurav",
+        //   device: "espHome",
+        //   mode: 1,
+        // };
+
+        // myMqttObj = {
+        //   server: "15.206.246.196",
+        //   user: "gaurav",
+        //   pass: "92244@Great",
+        //   token: "tokenid",
+        //   device: "espHome",
+        //   ison: 1,
+        //   port: 1883,
+        // };
+
+        // For Wifi and Hotspot credentials..
         let wifiPass = $("#wifipass");
+        let wifiName = $("#wifiname");
         let hotName = $("#hotname");
         let hotPass = $("#hotpass");
         let userName = $("#username");
         let lockPass = $("#lockpass");
         let dTime = $("#showTime");
 
-        wifiName.val(myOBJ.wifi);
-        wifiPass.val(myOBJ.wifipw);
-        hotName.val(myOBJ.ap);
-        hotPass.val(myOBJ.appw);
-        userName.val(myOBJ.user);
-        lockPass.val(myOBJ.lock);
+        // For mqtt server credentials
+        let portMqtt = $("#mqttport");
+        let server = $("#server");
+        let mqttUser = $("#mqttuser");
+        let mqttPassword = $("#mqttpass");
+        let deviceName = $("#device");
+        let token = $("#token");
 
-        $("#toSubmit").click(function () {
+        // Buttons for switcing wifi, hotspot and mqtt
+        let wifiBtn = $("#wifi");
+        let mqttBtn = $("#mqtt");
+        let hotspotBtn = $("#hotspot");
+
+        // Feeding the Wifi object data value to the input elemets
+        wifiName.val(myWifiObj.wifi);
+        wifiPass.val(myWifiObj.wifipw);
+        hotName.val(myWifiObj.ap);
+        hotPass.val(myWifiObj.appw);
+        userName.val(myWifiObj.user);
+        lockPass.val(myWifiObj.lock);
+        deviceName.val(myWifiObj.device);
+
+        server.val(myMqttObj.server);
+        mqttUser.val(myMqttObj.user);
+        mqttPassword.val(myMqttObj.pass);
+        token.val(myMqttObj.token);
+        portMqtt.val(myMqttObj.port);
+
+        // Setting the button configuration for easy toggling of the services
+        // Show the wifi and hotspot service status
+        if (myWifiObj.mode == 0) {
+          hotspotBtn
+            .attr("ison", 1)
+            .text("ON")
+            .css({ "background-color": "#ec4a4a33" });
+          wifiBtn.attr("ison", 0).text("OFF");
+        } else if (myWifiObj.mode == 1) {
+          wifiBtn
+            .attr("ison", 1)
+            .text("ON")
+            .css({ backgroundColor: "rgba(143, 235, 135, 0.4)" });
+          hotspotBtn.attr("ison", 0).text("OFF");
+        } else {
+          hotspotBtn
+            .attr("ison", 1)
+            .text("ON")
+            .css({ "background-color": "#ec4a4a33" });
+          wifiBtn
+            .attr("ison", 1)
+            .text("ON")
+            .css({ backgroundColor: "rgba(143, 235, 135, 0.4)" });
+        }
+        // show the mqtt service status
+        if (myMqttObj.ison == 0) {
+          mqttBtn.attr("ison", 0).text("OFF");
+        } else {
+          mqttBtn
+            .attr("ison", 1)
+            .text("ON")
+            .css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+        }
+
+        // Binding some ckick events on these buttons for switching services..
+        mqttBtn.click(function () {
+          if (mqttBtn.attr("ison") == 1) {
+            mqttBtn.attr("ison", 0).text("OFF").css({
+              "background-color": "#ebecf0",
+            });
+          } else {
+            mqttBtn
+              .attr("ison", 1)
+              .text("ON")
+              .css({ "background-color": "rgba(181, 219, 251, 0.4)" });
+          }
+        });
+
+        // handking clicks on wifi and hotspot
+        wifiBtn.click(function () {
+          if (wifiBtn.attr("ison") == 1) {
+            hotspotBtn
+              .attr("ison", 1)
+              .text("ON")
+              .css({ "background-color": "#ec4a4a33" });
+
+            wifiBtn.attr("ison", 0).text("OFF").css({
+              "background-color": "#ebecf0",
+            });
+          } else {
+            wifiBtn
+              .attr("ison", 1)
+              .text("ON")
+              .css({ backgroundColor: "rgba(143, 235, 135, 0.4)" });
+          }
+        });
+
+        hotspotBtn.click(function () {
+          if (hotspotBtn.attr("ison") == 1) {
+            wifiBtn
+              .attr("ison", 1)
+              .text("ON")
+              .css({ backgroundColor: "rgba(143, 235, 135, 0.4)" });
+            hotspotBtn.attr("ison", 0).text("OFF").css({
+              "background-color": "#ebecf0",
+            });
+          } else {
+            hotspotBtn
+              .attr("ison", 1)
+              .text("ON")
+              .css({ "background-color": "#ec4a4a33" });
+          }
+        });
+
+        // Function to validate the ip address..
+        // Returns boolean value ..
+        function ValidateIPaddress(ipaddress) {
+          if (
+            /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
+              ipaddress
+            )
+          ) {
+            return true;
+          }
+          // alert("You have entered an invalid IP address!");
+          return false;
+        }
+
+        // Handling the submit event using GET request..
+        $("#toSubmit").click(function (e) {
+          // To prevent the page from reloading
+          e.preventDefault();
+
+          // capturing the ip in this variable..
+          let ip = server.val();
+          // Validate the server ip if invalid stop execution!1s
+          if (!ValidateIPaddress(ip)) {
+            warnings.text("Invalid IP Address").slideDown(150);
+            console.log(ValidateIPaddress(ip));
+            return;
+          }
+
+          // Checking if port number is number type..
+          const reg = new RegExp("^[0-9]+$");
+          let portNo = portMqtt.val();
+          if (!reg.test(portNo)) {
+            warnings.text("Port number is invalid").slideDown(150);
+            return;
+          }
+
+          // Confirm by the user before sending the info to the server
           var confirmIt = confirm(
-            "You are one step back to change system settings. This process will reset your device!! Press OK to confirm..."
+            "You are one step away of changing system settings. This process will reset your device!! Press OK to confirm..."
           );
 
+          // Handle the ture option selection of the confirm block..
           if (confirmIt === true) {
-            let myLink = `/changesettings?wifiname=${wifiName.val()}&wifipass=${wifiPass.val()}&hotname=${hotName.val()}&hotpass=${hotPass.val()}&lockpass=${lockPass.val()}&user=${userName.val()}&submit=save+settings#`;
+            let payload = [];
+            console.log("");
+            // Every single data must be rechecked before sending
+            // If field are not changed, refrain from sending them..
 
-            console.log(myLink);
+            // Problem, the very next command after this array Definations never executes...
+            // hence to overcome useless command is written
+            let theElemnts = [];
+            console.log("cont 1");
+            console.log("cont 11");
+
+            let s = wifiPass.val();
+            console.log("cont 2");
+
+            wifiPass.val() != myWifiObj.wifipw
+              ? theElemnts.push({ for: "wifipass", pay: s })
+              : null;
+            console.log("cont 3");
+
+            s = wifiName.val();
+            wifiName.val() != myWifiObj.wifi
+              ? theElemnts.push({ for: "wifiname", pay: s })
+              : null;
+
+            s = hotName.val();
+            hotName.val() != myWifiObj.ap
+              ? theElemnts.push({ for: "hotname", pay: s })
+              : null;
+
+            s = hotPass.val();
+            hotPass.val() != myWifiObj.appw
+              ? theElemnts.push({ for: "hotpass", pay: s })
+              : null;
+
+            s = userName.val();
+            userName.val() != myWifiObj.user
+              ? theElemnts.push({ for: "wifiuser", pay: s })
+              : null;
+
+            s = lockPass.val();
+            lockPass.val() != myWifiObj.lock
+              ? theElemnts.push({ for: "lockpass", pay: s })
+              : null;
+
+            s = server.val();
+            server.val() != myMqttObj.server
+              ? theElemnts.push({ for: "server", pay: s })
+              : null;
+
+            s = mqttUser.val();
+            mqttUser.val() != myMqttObj.user
+              ? theElemnts.push({ for: "mqttuser", pay: s })
+              : null;
+
+            s = mqttPassword.val();
+            mqttPassword.val() != myMqttObj.pass
+              ? theElemnts.push({ for: "mqttpass", pay: s })
+              : null;
+
+            s = portMqtt.val();
+            portMqtt.val() != myMqttObj.port
+              ? theElemnts.push({ for: "mqttport", pay: s })
+              : null;
+
+            // But dont send to the server this value
+            // s = deviceName.val();
+            // deviceName.val() != myWifiObj.device
+            //   ? theElemnts.push({ for: "device", pay: s })
+            //   : null;
+
+            s = token.val();
+            token.val() != myMqttObj.token
+              ? theElemnts.push({ for: "token", pay: s })
+              : null;
+
+            let wifiMode = 0;
+            s = wifiBtn.attr("ison");
+            s == 1 ? (wifiMode = 1) : null;
+
+            t = hotspotBtn.attr("ison");
+            t == 1 ? (wifiMode = 0) : null;
+
+            if (s == 1 && t == 1) {
+              wifiMode = 2;
+            }
+
+            wifiMode != myWifiObj.mode
+              ? theElemnts.push({ for: "wifimode", pay: wifiMode })
+              : null;
+
+            s = mqttBtn.attr("ison");
+            s != myMqttObj.ison
+              ? theElemnts.push({ for: "mqttmode", pay: s })
+              : null;
+
+            // console.log(theElemnts);
+
+            let thePayload = { data: theElemnts };
+            let jsonPayload = JSON.stringify(thePayload);
+            console.log(thePayload);
 
             var xhttp1 = new XMLHttpRequest();
-            xhttp1.open("GET", myLink, true);
+            xhttp1.open("POST", "http://192.168.65.221/changesettings", true);
+            xhttp1.setRequestHeader("config", jsonPayload);
             xhttp1.send();
           }
         });
 
+        // Validation before letting user to press the send button to save changes on the server
         let showPwCheck = 0;
         let showPass = $("#showPassword");
         showPass.hover(
@@ -192,76 +590,27 @@
           }
         );
 
+        // handling the show password tesx
+        // on click of the this text, toggel between text property of
+        // input element to password and text
         showPass.click(function () {
           if (showPwCheck == 0) {
+            showPwCheck = 1;
             wifiPass.attr("type", "text");
             lockPass.attr("type", "text");
             hotPass.attr("type", "text");
-            showPwCheck = 1;
+            mqttPassword.attr("type", "text");
+            deviceName.attr("type", "text");
+            token.attr("type", "text");
             return;
           }
-          showPwCheck = 1;
+          showPwCheck = 0;
           wifiPass.attr("type", "password");
           lockPass.attr("type", "password");
           hotPass.attr("type", "password");
-        });
-
-        $.getJSON("http://192.168.218.155/gettime", (data, status) => {
-          var myWeekDay = [
-            "omit",
-            "Sun",
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat",
-          ];
-          let myMonth = [
-            "omit",
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-          ];
-          let secIncre = data.sec;
-          let minIncre = data.min;
-
-          setInterval(() => {
-            if (secIncre == 60) {
-              minIncre++;
-              secIncre = 0;
-            }
-            if (minIncre == 60) {
-              window.location.reload();
-            }
-            let showTime =
-              "" +
-              myWeekDay[data.wDay] +
-              " " +
-              myMonth[data.mon] +
-              " " +
-              data.day +
-              " " +
-              data.yr +
-              " " +
-              data.hr +
-              ":" +
-              minIncre +
-              ":" +
-              secIncre +
-              " (Local Time)";
-            dTime.text(showTime);
-            secIncre++;
-          }, 1000);
+          mqttPassword.attr("type", "password");
+          deviceName.attr("type", "password");
+          token.attr("type", "password");
         });
       });
     </script>

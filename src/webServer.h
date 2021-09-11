@@ -31,7 +31,6 @@ void serverSetup()
                   };
 
                   AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", index_html, processor);
-                  response->addHeader("Server", "ESP Async Web Server");
                   request->send(response);
               });
 
@@ -72,7 +71,6 @@ void serverSetup()
               {
                   AsyncWebServerResponse *response = request->beginResponse(200, "text/json", sendTime().c_str());
                   response->addHeader("Access-Control-Allow-Origin", "*");
-                  response->addHeader("Server", "Vishwakarma home automation");
                   request->send(response);
               });
 
@@ -85,7 +83,6 @@ void serverSetup()
               {
                   AsyncWebServerResponse *response = request->beginResponse(200, "text/json", AlarmControl.getAlarms().c_str());
                   response->addHeader("Access-Control-Allow-Origin", "*");
-                  response->addHeader("Server", "Vishwakarma home automation");
                   request->send(response);
               });
 
@@ -210,11 +207,13 @@ void serverSetup()
 
     // Listenigng on the path for changed settings to implement the same
     // ----------------------------------------------
-    server.on("/changesettings", HTTP_GET, [](AsyncWebServerRequest *request)
+    server.on("/changesettings", HTTP_POST, [](AsyncWebServerRequest *request)
               {
+                  Serial.println("This path is accessed");
                   String user = WifiControl.getTheWifiElement("user");
                   String lock = WifiControl.getTheWifiElement("lock");
 
+                  // Validation before serving the page
                   const char *http_username = user.c_str();
                   const char *http_password = lock.c_str();
                   if (!request->authenticate(http_username, http_password))
@@ -222,27 +221,77 @@ void serverSetup()
                       return request->requestAuthentication();
                   }
 
-                  if (request->getParam("wifiname") &&
-                      request->getParam("wifipass") &&
-                      request->getParam("hotname") &&
-                      request->getParam("hotpass") &&
-                      request->getParam("lockpass") &&
-                      request->getParam("user"))
-                  {
-                      String wifiname = request->getParam("wifiname")->value();
-                      String wifipass = request->getParam("wifipass")->value();
-                      String hotname = request->getParam("hotname")->value();
-                      String hotpass = request->getParam("hotpass")->value();
-                      String lockpass = request->getParam("lockpass")->value();
-                      String username = request->getParam("user")->value();
+                  String wifiname = "void";
+                  String wifipass = "void";
+                  String hotname = "void";
+                  String hotpass = "void";
+                  String lockpass = "void";
+                  String wifiuser = "void";
 
-                      request->send(200, "text/plain", "OK");
+                  String server = "void";
+                  String mqttuser = "void";
+                  String mqttpass = "void";
+                  String token = "void";
+                  int mqttmode = -1;
+                  int mqttport = -1;
 
-                      WifiControl.updateWifiSettings(wifiname, wifipass, hotname, hotpass, lockpass, username);
-                  }
-                  else
+                  Serial.println("Still processing");
+                  if (request->getHeader("config"))
                   {
-                      request->send(200, "text/plain", "Not in proper format!!");
+                      //   Serial.println("Got in the array");
+
+                      String gotResJson = request->getHeader("config")->value();
+                      //   Serial.println(gotResJson);
+                      DynamicJsonDocument docOrg2(1024);
+                      //   Serial.println("deserialized");
+
+                      DeserializationError err = deserializeJson(docOrg2, gotResJson);
+                      Serial.print(F("deserializeJson() Status: "));
+                      Serial.println(err.c_str());
+
+                      JsonArray jsonArr = docOrg2["data"].as<JsonArray>();
+
+                      // Looping for every variant in the jsonArr array
+                      for (JsonVariant v : jsonArr)
+                      {
+                          String aa = "";
+                          int bb = -1;
+
+                          String pay = v["pay"];
+                          v["for"] == "wifiname" ? wifiname = pay : aa = "";
+                          v["for"] == "wifipass" ? wifipass = pay : aa = "";
+                          v["for"] == "hotname" ? hotname = pay : aa = "";
+                          v["for"] == "hotpass" ? hotpass = pay : aa = "";
+                          v["for"] == "lockpass" ? lockpass = pay : aa = "";
+                          v["for"] == "wifiuser" ? wifiuser = pay : aa = "";
+
+                          if (v["for"] == "wifimode")
+                          {
+                              WifiControl.changeConnectionMode(pay.toInt());
+                          }
+
+                          v["for"] == "server" ? server = pay : aa = "";
+                          v["for"] == "mqttuser" ? mqttuser = pay : aa = "";
+                          v["for"] == "mqttpass" ? mqttpass = pay : aa = "";
+                          v["for"] == "token" ? token = pay : aa = "";
+                          v["for"] == "mqttmode" ? mqttmode = pay.toInt() : bb = 0;
+                          v["for"] == "mqttport" ? mqttport = pay.toInt() : bb = 0;
+
+                          String a = v["for"];
+                          String b = v["pay"];
+                          //   Serial.println("Got data is : ");
+                          //   Serial.println(a);
+                          //   Serial.println(b);
+                          //   Serial.println("======================================");
+                      }
+
+                      // Loading data to the wifi settings, Invalid data will auto eliminate..
+                      WifiControl.updateWifiSettings(wifiname, wifipass, hotname, hotpass, lockpass, wifiuser);
+                      // Loading data to Mqtt settings.. Invalid data will auto eliminate..
+                      MqttControl.setMqttData(server, mqttuser, mqttpass, token, mqttmode, mqttport);
+
+                      // Safely Rebooting the device
+                      RebootDevice.RebootDevice();
                   }
               });
 
@@ -422,6 +471,59 @@ void serverSetup()
 
                   response->addHeader("Access-Control-Allow-Origin", "*");
                   response->addHeader("Server", "Vishwakarma home automation");
+                  request->send(response);
+              });
+
+    server.on("/read-write", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                  String user = WifiControl.getTheWifiElement("user");
+                  String lock = WifiControl.getTheWifiElement("lock");
+
+                  // Validation before serving the page
+                  const char *http_username = user.c_str();
+                  const char *http_password = lock.c_str();
+                  if (!request->authenticate(http_username, http_password))
+                  {
+                      return request->requestAuthentication();
+                  }
+
+                  Serial.println("Read Write is accessed");
+                  if (request->getHeader("read"))
+                  {
+                      Serial.println("Got in side of Read write");
+
+                      // If such header is found in the html header
+                      String json = "";
+                      String gotResJson = request->getHeader("read")->value();
+                      Serial.println(gotResJson);
+                      DynamicJsonDocument docs(4024);
+                      DeserializationError err = deserializeJson(docs, gotResJson);
+                      Serial.print(F("deserializeJson() Status: "));
+                      Serial.println(err.c_str());
+
+                      if (docs["opt"] == "r")
+                      {
+                          String path = docs["path"];
+                          String data = readTheMemory(path);
+                          Serial.println(data);
+                          json = "{\"path\":\"" + path + "\",\"data\":\"" + data + "\"}";
+                      }
+                      else if (docs["opt"] == "w")
+                      {
+                          String path = docs["path"];
+                          String data = docs["data"];
+                          writeToMemory(path, data);
+                          json = "{\"path\":\"" + path + "\",\"data\":\"Successfull...\"}";
+                      }
+                      AsyncWebServerResponse *response = request->beginResponse(200, "text/json", json);
+                      response->addHeader("Access-Control-Allow-Origin", "*");
+                      request->send(response);
+                      return;
+                  }
+
+                  // Sending the read-write web page
+                  AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", read_write_html, processor);
+                  response->addHeader("Access-Control-Allow-Origin", "*");
                   request->send(response);
               });
 

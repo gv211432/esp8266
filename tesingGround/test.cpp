@@ -1,5 +1,6 @@
 #include "stdio.h"
 
+// For segrigating data in batch of 4
 int main()
 {
     // size_t myDataOtherSize = (12 % 4);

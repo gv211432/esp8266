@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wifi Settings</title>
+    <link rel="stylesheet" href="http://192.168.97.221/style.css" />
+
+    <style>
+      .middleIt {
+        display: flex;
+        justify-content: center;
+        text-align: center;
+      }
+      input {
+        margin-top: 10px;
+      }
+      textarea {
+        margin-top: 10px;
+        min-height: 200px;
+        border: 0;
+        outline: 0;
+        font-size: 16px;
+        border-radius: 30px;
+        padding: 16px;
+        background-color: #ebecf0;
+        margin-right: 8px;
+        box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 10px #fff;
+        width: 100%;
+        box-sizing: border-box;
+        transition: all 0.2s ease-in-out;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+      textarea:focus {
+        box-shadow: inset 1px 1px 2px #babecc, inset -1px -1px 2px #fff;
+      }
+    </style>
+    <script src="http://192.168.97.221/jquery.js"></script>
+    <script src="http://192.168.97.221/jquery.js?menu"></script>
+  </head>
+  <body style="font-size: 16px">
+    <br /><br />
+    <div id="root" class="middleIt">
+      <div
+        class="middleIt"
+        id="mainForm"
+        style="
+          width: 380px;
+          box-shadow: -2px -2px 5px #fff, 2px 2px 5px #babecc;
+          border-radius: 20px;
+          margin-bottom: 10px;
+        "
+      >
+        <form id="login-form" class="login-form">
+          <h2>Read and Write Path</h2>
+
+          <div>
+            <label for="path">Path*</label>
+            <input
+              type="text"
+              class="text"
+              name="path"
+              id="path"
+              placeholder="/path"
+              tabindex="1"
+              required
+            />
+            <br /><br />
+            <label for="content">Content</label>
+            <br />
+            <textarea
+              name="content"
+              class="text"
+              id="content"
+              placeholder="Path data.."
+              tabindex="1"
+            >
+Path data..
+            </textarea>
+          </div>
+          <br />
+
+          <!-- Following is the buttons for switching wifi hotspot and mqtt -->
+          <div style="flex-direction: row">
+            <h4 style="word-spacing: 50px">READ WRITE</h4>
+            <!-- Dynamic data is feeded by jQuery -->
+            <button
+              style="
+                margin-left: 20px;
+                margin-right: 20px;
+                background-color: #ec4a4a33;
+              "
+              class="unit"
+              type="button"
+              id="read"
+              ison="1"
+            >
+              ON
+            </button>
+            <button
+              style="margin-left: 20px; margin-right: 20px"
+              class="unit"
+              type="button"
+              id="write"
+              ison="0"
+            >
+              OFF
+            </button>
+          </div>
+          <br />
+
+          <p
+            id="showTheTime"
+            style="color: #d1ce0d; font-size: 18px; font-weight: 600"
+          ></p>
+          <p
+            id="warnings"
+            style="color: #d47304; font-size: 18px; font-weight: 600"
+          ></p>
+          <button name="submit" value="Save Settings" id="send" class="red">
+            Send
+          </button>
+        </form>
+      </div>
+      <br />
+    </div>
+    <br /><br />
+    <div><button id="menuBtn">&#9776;</button></div>
+    %MENU% <br /><br />
+    <script>
+      $(function () {
+        let warnings = $("#warnings").hide();
+        let read = $("#read");
+        let write = $("#write");
+        let send = $("#send");
+        let toggle = function () {
+          if (read.attr("ison") == 1) {
+            read
+              .text("OFF")
+              .attr("ison", "0")
+              .css({ "background-color": "#ebecf0" });
+            write
+              .text("ON")
+              .attr("ison", "1")
+              .css({ "background-color": "rgba(143, 235, 135, 0.4)" });
+          } else {
+            read
+              .text("ON")
+              .attr("ison", "1")
+              .css({ "background-color": "#ec4a4a33" });
+            write
+              .text("OFF")
+              .attr("ison", "0")
+              .css({ "background-color": "#ebecf0" });
+          }
+        };
+        read.click(toggle);
+        write.click(toggle);
+        send.click(function (e) {
+          e.preventDefault();
+          // If the section is executed pls hide the warning, cuz this is successful
+          warnings.slideUp(150);
+          let path = $("#path");
+          let content = $("#content");
+
+          let pathValue = path.val();
+          let trimPath = pathValue.trim();
+          if (trimPath[0] == "/") {
+            // console.log("Its true dude");
+            // console.log(content.val().trim());
+
+            let payload = {};
+            // console.log("");
+            // console.log("");
+            // console.log("");
+            if (read.attr("ison") == 1) {
+              payload["opt"] = "r";
+              payload["path"] = pathValue;
+            } else {
+              payload["opt"] = "w";
+              let data = content.val().trim();
+              payload["path"] = pathValue;
+              payload["data"] = data;
+            }
+            console.log(payload);
+            let payloadJson = JSON.stringify(payload);
+
+            // Sending the reqest to server with additional headers..
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://192.168.97.221/read-write", true);
+            // Creating a event listenr before sending the data
+            xhr.onreadystatechange = function () {
+              if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                  let data = xhr.responseText;
+                  try {
+                    let gotObj = JSON.parse(data);
+                    content.val(gotObj.data);
+                    warnings.slideUp(150);
+                  } catch (error) {
+                    warnings
+                      .text("Error in loading information!!")
+                      .slideDown(150);
+                  }
+                }
+              }
+            };
+            // Feeding the data in the headers..
+            xhr.setRequestHeader("read", payloadJson);
+            // Sending the xmlhttp request
+            xhr.send();
+          } else {
+            warnings.text("Path or data is invalid!").slideDown(150);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

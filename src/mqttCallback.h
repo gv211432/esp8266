@@ -21,7 +21,25 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
     Serial.println(theRecievedData);
 
     DynamicJsonDocument docs(2056);
-    deserializeJson(docs, theRecievedData);
+    DeserializationError err = deserializeJson(docs, theRecievedData);
+    // If error found in the deserialize
+    // DeserializationError::Ok
+    // DeserializationError::EmptyInput
+    // DeserializationError::IncompleteInput
+    // DeserializationError::InvalidInput
+    // DeserializationError::NoMemory
+    // DeserializationError::NotSupported ⚠️ removed
+    // DeserializationError::TooDeep
+    // TODO Not tested if dose not work remove it
+    if (err)
+    {
+        String e = err.c_str();
+        MqttControl.publishOnMqtt("0000000001", "err", "err", "{\"err\":\"" + e + "\"}");
+        Serial.print(F("deserializeJson() failed: "));
+        Serial.println(e);
+        return;
+    }
+    // On Success it gets data in JSON Array
     JsonArray myData = docs["data"].as<JsonArray>();
 
     // again printing for debugging!!
@@ -127,7 +145,7 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
                 // MqttControl.publishOnMqtt(mqttCmdId, "btnSwitch", "btnSwitch", getOnOffStatus);
 
                 // No need to send the result or response
-                // This will be automatically done by other function listning for changes in pins states..
+                // This will be automatically done by other function listening for changes in pins states..
             }
         }
         return;
@@ -279,8 +297,9 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
             int to = v["to"];
             WifiControl.changeConnectionMode(to);
             MqttControl.publishOnMqtt(mqttCmdId, "wifiMode", "wifiMode", msg);
-            delay(500);
-            ESP.restart();
+            // delay(500);
+            // ESP.restart();
+            // pls use reboot api to reboot after confirmation..
         }
         return;
     }
@@ -326,7 +345,7 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
         }
         if (sizeOfDoc == 0)
         {
-            MqttControl.publishOnMqtt(mqttCmdId, "alarm", "alarmJson", "{}");
+            MqttControl.publishOnMqtt(mqttCmdId, "alarm", "alarmJson", "{\"alarm\":\"[]\"}");
         }
         if (!isAllState)
         {
@@ -900,7 +919,8 @@ void mqttCallback(const char *topic, byte *payload, unsigned int length)
     // ----------------------------------------------
     if (toHandler == "reboot")
     {
-        delay(1000);
-        ESP.restart();
+        // delay(1000);
+        // ESP.restart();
+        RebootDevice.RebootDevice();
     }
 }

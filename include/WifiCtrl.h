@@ -33,8 +33,9 @@ private:
     String appw;
     String lock;
     String user;
+    String __device;
     // IF mode is 0 means Access Point(Hotspot), 1 means Station point(WIFI) and 2 means Both....
-    String __mode = "0"; // TODO mind it, its going to be chaneged..
+    String __mode = "0";
 };
 
 // Reads the flash memory for the credentials and bring into the ram...
@@ -98,7 +99,11 @@ void WifiCtrl::setWifi()
             if (fName == "mode")
             {
                 __mode = wifiInfo;
-                // __mode = wifiInfo;
+                continue;
+            }
+            if (fName == "device")
+            {
+                __device = wifiInfo;
                 continue;
             }
         }
@@ -155,48 +160,62 @@ void WifiCtrl::updateWifiSettings(String wifiname, String wifipass, String hotna
     bool check = false;
     if (ssid != wifiname && wifiname != "void" && wifiname != 0 && wifiname != " ")
     {
-        writeToMemory("/wifi/st", wifiname);
-        check = true;
+        int gotCheck = stringStrengthCheck(wifiname);
+        if (gotCheck <= 4)
+        {
+            writeToMemory("/wifi/st", wifiname);
+            // Serial.println(wifiname);
+            check = true;
+        }
     }
     if (ssidpw != wifipass && wifipass != "void" && wifipass != 0 && wifipass != " ")
     {
-        writeToMemory("/wifi/stp", wifipass);
-        check = true;
+        int gotCheck = stringStrengthCheck(wifipass);
+        if (gotCheck <= 4)
+        {
+            writeToMemory("/wifi/stp", wifipass);
+            // Serial.println(wifipass);
+            check = true;
+        }
     }
 
-    if (ap != hotname)
+    if (ap != hotname && hotname != "void")
     {
         int gotCheck = stringStrengthCheck(hotname);
         if (gotCheck <= 3)
         {
             writeToMemory("/wifi/ap", hotname);
+            // Serial.println(hotname);
             check = true;
         }
     }
-    if (appw != hotpass)
+    if (appw != hotpass && hotpass != "void")
     {
         int gotCheck = stringStrengthCheck(hotpass);
         if (gotCheck <= 1)
         {
             writeToMemory("/wifi/app", hotpass);
+            // Serial.println(hotpass);
             check = true;
         }
     }
-    if (lock != lockpass)
+    if (lock != lockpass && lockpass != "void")
     {
         int gotCheck = stringStrengthCheck(lockpass);
         if (gotCheck <= 1)
         {
             writeToMemory("/wifi/lock", lockpass);
+            // Serial.println(lockpass);
             lock = lockpass;
         }
     }
-    if (user != username)
+    if (user != username && username != "void")
     {
         int gotCheck = stringStrengthCheck(username);
         if (gotCheck <= 2)
         {
             writeToMemory("/wifi/user", username);
+            // Serial.println(username);
             user = username;
         }
     }
@@ -209,21 +228,22 @@ void WifiCtrl::updateWifiSettings(String wifiname, String wifipass, String hotna
     // ----------------------------------------------
     if (check)
     {
-        delay(500);
-        ESP.restart();
+        Serial.println("Tend to update Wifi Settings on change in wifi config");
+        // delay(500);
+        // ESP.restart();
     }
 }
 
 // Returns the javascript object format wifi information to the caller..
 String WifiCtrl::getWifiInfo()
 {
-    String myObj = s + "{wifi:\"" + ssid + "\",wifipw:\"" + ssidpw + "\",ap:\"" + ap + "\",appw:\"" + appw + "\",lock:\"" + lock + "\",user:\"" + user + "\"}";
+    String myObj = s + "{wifi:\"" + ssid + "\",wifipw:\"" + ssidpw + "\",ap:\"" + ap + "\",appw:\"" + appw + "\",lock:\"" + lock + "\",user:\"" + user + "\",mode:" + __mode.toInt() + ",device:\"" + __device + "\"}";
     return myObj;
 }
 // Returns the json format wifi information to the caller..
 String WifiCtrl::getWifiInfoJson()
 {
-    String myObj = s + "{\"wifi\":\"" + ssid + "\",\"wifipw\":\"" + ssidpw + "\",\"ap\":\"" + ap + "\",\"appw\":\"" + appw + "\",\"lock\":\"" + lock + "\",\"user\":\"" + user + "\",\"mode\":" + __mode.toInt() + "}";
+    String myObj = s + "{\"wifi\":\"" + ssid + "\",\"wifipw\":\"" + ssidpw + "\",\"ap\":\"" + ap + "\",\"appw\":\"" + appw + "\",\"lock\":\"" + lock + "\",\"user\":\"" + user + "\",\"mode\":" + __mode.toInt() + ",\"device\":\"" + __device + "\"}";
     return myObj;
 }
 

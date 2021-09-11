@@ -136,6 +136,8 @@ String zeroOneValidator(int article)
     return "Ok";
 }
 
+// Following function adds a given pin number to the bossPin json
+// ----------------------------------------------
 String PinCtrl::bossPin()
 {
     DynamicJsonDocument docOrg(2048);
@@ -185,7 +187,10 @@ void PinCtrl::pinPowerTracker()
     //     myString.concat(data);
     // }
 
-    DynamicJsonDocument docOrg(512);
+    // Following code is responsible for retreving all ON and OFF state of previous boot
+    // on applying the same change on pins
+    // this facilitates the pin ON-OFF state persistance
+    DynamicJsonDocument docOrg(1024);
     deserializeJson(docOrg, __pinStatKeep);
     JsonArray myArray = docOrg["pinStatKeep"].as<JsonArray>();
 
@@ -855,6 +860,8 @@ int PinCtrl::toggleThePin(int pinNo = -1, int state = -1)
 }
 
 // ----------------------------------------------
+// As it is call in loop in the "main.cpp" the (for loop in this function) must be terminated once
+// any pin is found and switched
 void PinCtrl::pinRelationConvertor()
 {
     // Successfully tested please don't alter..
@@ -1089,7 +1096,8 @@ PinCtrl::PinCtrl()
     }
     LittleFS.end();
 
-    // Loading for instantly needed data into int arrays for quick access..
+    // Loading the (instant needed data) into (int arrays) for quick access..
+    // Same can be done by the following functions..
     writingToStruct();
     writeToPinActiveArr();
     writeToPinShowArr();
